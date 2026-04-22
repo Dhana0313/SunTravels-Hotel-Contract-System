@@ -1,1 +1,89 @@
-<p>contract-management works!</p>
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm mt-4 mb-5">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Load New Contract</h4>
+      </div>
+      <div class="card-body">
+        
+        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+        <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+          
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Select Hotel</label>
+            <select class="form-select" formControlName="hotelId">
+              <option value="" disabled>Choose a hotel...</option>
+              <option *ngFor="let hotel of hotels" [value]="hotel.id">{{ hotel.hotelName }}</option>
+            </select>
+          </div>
+
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Valid From</label>
+            <input type="date" class="form-control" formControlName="validFrom">
+          </div>
+
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Valid To</label>
+            <input type="date" class="form-control" formControlName="validTo">
+          </div>
+
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Markup Percentage (%)</label>
+            <input type="number" class="form-control" formControlName="markupPercentage" placeholder="e.g. 15">
+          </div>
+
+          <hr class="my-3">
+
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0 text-primary">Room Types</h5>
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="addRoomType()">
+              + Add Room Type
+            </button>
+          </div>
+
+          <div formArrayName="roomTypes" class="d-flex flex-column gap-4">
+            <div *ngFor="let room of roomTypes.controls; let i = index" [formGroupName]="i" class="card border-info">
+              
+              <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h6 class="text-info mb-0 fw-bold">Room #{{ i + 1 }}</h6>
+                <button *ngIf="roomTypes.length > 1" type="button" class="btn btn-sm btn-outline-danger" (click)="removeRoomType(i)">Remove</button>
+              </div>
+
+              <div class="card-body d-flex flex-column gap-3">
+                <div class="form-group d-flex flex-column">
+                  <label class="form-label text-muted small mb-1">Type Name (e.g. Standard, Deluxe)</label>
+                  <input type="text" class="form-control" formControlName="typeName">
+                </div>
+
+                <div class="form-group d-flex flex-column">
+                  <label class="form-label text-muted small mb-1">Base Price ($)</label>
+                  <input type="number" class="form-control" formControlName="price">
+                </div>
+
+                <div class="form-group d-flex flex-column">
+                  <label class="form-label text-muted small mb-1">Number of Rooms</label>
+                  <input type="number" class="form-control" formControlName="noOfRooms">
+                </div>
+
+                <div class="form-group d-flex flex-column">
+                  <label class="form-label text-muted small mb-1">Max Adults per Room</label>
+                  <input type="number" class="form-control" formControlName="maxAdults">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button type="submit" class="btn btn-success w-100 py-2 fw-bold" [disabled]="!contractForm.valid">
+              Save Contract to Database
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
