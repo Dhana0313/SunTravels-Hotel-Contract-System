@@ -1,6 +1,19 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Hotel } from '../models/hotel';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class Hotel {}
+export class HotelService {
+  
+  // Points directly to your Spring Boot Hotel Controller
+  private apiUrl = 'http://localhost:8080/api/hotels';
+
+  constructor(private http: HttpClient) {}
+
+  getAllHotels(): Observable<Hotel[]> {
+    return this.http.get<Hotel[]>(this.apiUrl);
+  }
+}
