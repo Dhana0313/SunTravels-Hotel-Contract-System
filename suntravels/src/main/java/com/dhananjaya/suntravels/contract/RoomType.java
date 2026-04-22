@@ -1,5 +1,6 @@
 package com.dhananjaya.suntravels.contract;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class RoomType {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contract_id", nullable = false)
+    @JsonIgnore
     private Contract contract;
 
     @Column(name = "type_name", nullable = false)
