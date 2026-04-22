@@ -1,1 +1,112 @@
-<p>search-engine works!</p>
+<div class="row mt-4 mb-5">
+  
+  <div class="col-lg-4 mb-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Search Accommodation</h5>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="searchForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
+          
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Check-In Date</label>
+            <input type="date" class="form-control" formControlName="checkInDate">
+          </div>
+
+          <div class="form-group d-flex flex-column">
+            <label class="form-label fw-bold">Number of Nights</label>
+            <input type="number" class="form-control" formControlName="noOfNights">
+          </div>
+
+          <hr class="my-2">
+          
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-bold text-primary">Rooms Required</h6>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRoomRequest()">+ Add Room</button>
+          </div>
+
+          <div formArrayName="roomRequests" class="d-flex flex-column gap-3">
+            @for (room of roomRequests.controls; track $index; let i = $index) {
+              <div [formGroupName]="i" class="card border-info">
+                <div class="card-body p-2 d-flex justify-content-between align-items-center gap-2">
+                  <div class="flex-grow-1">
+                    <label class="form-label small text-muted mb-1">Adults in Room #{{ i + 1 }}</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="noOfAdults">
+                  </div>
+                  @if (roomRequests.length > 1) {
+                    <button type="button" class="btn btn-sm btn-outline-danger mt-4" (click)="removeRoomRequest(i)">X</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-success mt-3 w-100 fw-bold" [disabled]="!searchForm.valid || isSearching">
+            {{ isSearching ? 'Searching...' : 'Find Rooms' }}
+          </button>
+
+          @if (errorMessage) {
+            <div class="alert alert-danger mt-3">{{ errorMessage }}</div>
+          }
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Search Results</h5>
+      </div>
+      <div class="card-body p-0">
+        
+        @if (!hasSearched && !isSearching) {
+          <div class="p-5 text-center text-muted">
+            <h5>Ready to search</h5>
+            <p>Enter your criteria on the left to find available accommodations.</p>
+          </div>
+        }
+
+        @if (hasSearched && results.length === 0) {
+          <div class="p-5 text-center text-muted">
+            <h5>No availability found</h5>
+            <p>No contracts match your required dates or inventory.</p>
+          </div>
+        }
+
+        @if (results.length > 0) {
+          <div class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Hotel Name</th>
+                  <th>Room Type</th>
+                  <th>Total Price</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (result of results; track $index) {
+                  <tr>
+                    <td class="fw-bold align-middle">{{ result.hotelName }}</td>
+                    <td class="align-middle">{{ result.roomType }}</td>
+                    
+                    <td class="fw-bold text-success align-middle">${{ result.price | number:'1.2-2' }}</td>
+                    
+                    <td class="align-middle">
+                      @if (result.availabilityStatus === 'Available') {
+                        <span class="badge bg-success fs-6">Available</span>
+                      } @else {
+                        <span class="badge bg-danger fs-6">Unavailable</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
