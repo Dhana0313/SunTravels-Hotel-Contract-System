@@ -1,21 +1,29 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
   <div class="container">
     <a class="navbar-brand" routerLink="/search">Sun Travels</a>
-    
-    <button class="navbar-toggler" type="button" (click)="isMenuCollapsed = !isMenuCollapsed" aria-label="Toggle navigation">
+
+    <button class="navbar-toggler" type="button" (click)="isMenuCollapsed = !isMenuCollapsed"
+      aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    
+
     <div class="collapse navbar-collapse" [class.show]="!isMenuCollapsed">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/search" routerLinkActive="active" (click)="isMenuCollapsed = true">Search Rooms</a>
+          <a class="nav-link" routerLink="/search" routerLinkActive="active" (click)="isMenuCollapsed = true">Search
+            Rooms</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/add-contract" routerLinkActive="active" (click)="isMenuCollapsed = true">Load Contract</a>
+          <a class="nav-link" routerLink="/add-contract" routerLinkActive="active" (click)="isMenuCollapsed = true">Load
+            Contract</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/view-contracts" routerLinkActive="active" (click)="isMenuCollapsed = true">View Contracts</a>
+          <a class="nav-link" routerLink="/view-contracts" routerLinkActive="active"
+            (click)="isMenuCollapsed = true">View Contracts</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/manage-hotels" routerLinkActive="active"
+            (click)="isMenuCollapsed = true">Manage Hotels</a>
         </li>
       </ul>
     </div>

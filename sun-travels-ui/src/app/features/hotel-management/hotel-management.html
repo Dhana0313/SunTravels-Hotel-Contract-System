@@ -1,0 +1,41 @@
+<div class="row justify-content-center mt-4 mb-5">
+  <div class="col-md-6">
+    
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Add New Hotel</h5>
+      </div>
+      <div class="card-body">
+        
+        <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+
+        <form [formGroup]="hotelForm" (ngSubmit)="onSubmit()" class="d-flex gap-2">
+          <div class="flex-grow-1">
+            <input type="text" class="form-control" formControlName="hotelName" placeholder="Enter hotel name...">
+          </div>
+          <button type="submit" class="btn btn-success fw-bold" [disabled]="!hotelForm.valid">
+            Save
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h6 class="mb-0">Registered Hotels</h6>
+      </div>
+      <ul class="list-group list-group-flush">
+        @for (hotel of hotels; track hotel.id) {
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ hotel.hotelName }}
+            <span class="badge bg-secondary rounded-pill">ID: {{ hotel.id }}</span>
+          </li>
+        } @empty {
+          <li class="list-group-item text-center text-muted py-3">No hotels found.</li>
+        }
+      </ul>
+    </div>
+
+  </div>
+</div>
