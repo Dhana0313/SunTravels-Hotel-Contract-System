@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContractService } from '../../core/services/contract';
 import { ContractResponse } from '../../core/models/contract';
@@ -14,7 +14,10 @@ export class ContractViewer implements OnInit {
   contracts: ContractResponse[] = [];
   errorMessage = '';
 
-  constructor(private contractService: ContractService) {}
+  constructor(
+    private contractService: ContractService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadContracts();
@@ -24,6 +27,7 @@ export class ContractViewer implements OnInit {
     this.contractService.getAllContracts().subscribe({
       next: (data) => {
         this.contracts = data;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching contracts:', err);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HotelService } from '../../core/services/hotel';
@@ -19,7 +19,8 @@ export class HotelManagementComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private hotelService: HotelService
+    private hotelService: HotelService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -31,7 +32,10 @@ export class HotelManagementComponent implements OnInit {
 
   loadHotels(): void {
     this.hotelService.getAllHotels().subscribe({
-      next: (data) => this.hotels = data,
+      next: (data) => {
+        this.hotels = data;
+        this.cdr.detectChanges();
+      },
       error: (err) => console.error('Failed to load hotels', err)
     });
   }
@@ -48,6 +52,7 @@ export class HotelManagementComponent implements OnInit {
         error: (err) => {
           this.errorMessage = 'Failed to add hotel. Please try again.';
           this.successMessage = '';
+          this.cdr.detectChanges();
         }
       });
     }

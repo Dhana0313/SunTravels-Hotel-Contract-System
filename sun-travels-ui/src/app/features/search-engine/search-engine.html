@@ -28,14 +28,25 @@
           <div formArrayName="roomRequests" class="d-flex flex-column gap-3">
             @for (room of roomRequests.controls; track $index; let i = $index) {
               <div [formGroupName]="i" class="card border-info">
-                <div class="card-body p-2 d-flex justify-content-between align-items-center gap-2">
-                  <div class="flex-grow-1">
-                    <label class="form-label small text-muted mb-1">Adults in Room #{{ i + 1 }}</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="noOfAdults">
-                  </div>
+                <div class="card-body p-2 position-relative">
+                  
                   @if (roomRequests.length > 1) {
-                    <button type="button" class="btn btn-sm btn-outline-danger mt-4" (click)="removeRoomRequest(i)">X</button>
+                    <button type="button" class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 text-decoration-none" (click)="removeRoomRequest(i)">
+                      <strong>X</strong>
+                    </button>
                   }
+
+                  <div class="row g-2 mt-1">
+                    <div class="col-6">
+                      <label class="form-label small text-muted mb-1">Adults per Room</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="noOfAdults">
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label small text-muted mb-1">Quantity of Rooms</label>
+                      <input type="number" class="form-control form-control-sm bg-light" formControlName="roomQuantity">
+                    </div>
+                  </div>
+                  
                 </div>
               </div>
             }

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { SearchService } from '../../core/services/search';
-import { SearchResult } from '../../core/models/search';
+import { SearchResult, SearchRequest, RoomRequest } from '../../core/models/search';
 
 @Component({
   selector: 'app-search-engine',
@@ -14,7 +14,7 @@ import { SearchResult } from '../../core/models/search';
 export class SearchEngine implements OnInit {
   searchForm!: FormGroup;
   results: SearchResult[] = [];
-  
+
   // UI State variables
   hasSearched = false;
   isSearching = false;
@@ -22,8 +22,9 @@ export class SearchEngine implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private searchService: SearchService
-  ) {}
+    private searchService: SearchService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -44,7 +45,8 @@ export class SearchEngine implements OnInit {
 
   addRoomRequest(): void {
     const roomGroup = this.fb.group({
-      noOfAdults: [1, [Validators.required, Validators.min(1)]]
+      noOfAdults: [1, [Validators.required, Validators.min(1)]],
+      roomQuantity: [1, [Validators.required, Validators.min(1)]]
     });
     this.roomRequests.push(roomGroup);
   }
@@ -61,16 +63,37 @@ export class SearchEngine implements OnInit {
       this.hasSearched = false;
       this.errorMessage = '';
 
-      this.searchService.searchAvailableRooms(this.searchForm.value).subscribe({
+      const formValue = this.searchForm.value;
+      const finalRoomRequests: RoomRequest[] = [];
+
+      // Loop through the UI rows and multiply them based on the quantity
+      for (const row of formValue.roomRequests) {
+        for (let i = 0; i < row.roomQuantity; i++) {
+          finalRoomRequests.push({ noOfAdults: row.noOfAdults });
+        }
+      }
+
+      // Build the final strict payload for Spring Boot
+      const searchPayload: SearchRequest = {
+        checkInDate: formValue.checkInDate,
+        noOfNights: formValue.noOfNights,
+        roomRequests: finalRoomRequests
+      };
+      // ----------------------------------------
+
+      // Send the transformed payload instead of the raw form value
+      this.searchService.searchAvailableRooms(searchPayload).subscribe({
         next: (data) => {
           this.results = data;
           this.hasSearched = true;
           this.isSearching = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           console.error('Search failed', err);
           this.errorMessage = 'Failed to execute search. Please verify your backend connection.';
           this.isSearching = false;
+          this.cdr.detectChanges();
         }
       });
     } else {
