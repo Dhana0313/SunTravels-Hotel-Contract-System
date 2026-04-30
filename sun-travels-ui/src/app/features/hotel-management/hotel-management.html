@@ -1,41 +1,65 @@
-<div class="row justify-content-center mt-4 mb-5">
-  <div class="col-md-6">
-    
-    <div class="card shadow-sm mb-4">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Add New Hotel</h5>
-      </div>
-      <div class="card-body">
-        
-        <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+<!-- hotel-management.component.html -->
 
-        <form [formGroup]="hotelForm" (ngSubmit)="onSubmit()" class="d-flex gap-2">
-          <div class="flex-grow-1">
-            <input type="text" class="form-control" formControlName="hotelName" placeholder="Enter hotel name...">
-          </div>
-          <button type="submit" class="btn btn-success fw-bold" [disabled]="!hotelForm.valid">
-            Save
-          </button>
-        </form>
-      </div>
-    </div>
+<div class="page-header">
+  <div>
+    <p class="page-subtitle">Administration</p>
+    <h1 class="page-title">Hotel Management</h1>
+  </div>
+</div>
 
-    <div class="card shadow-sm">
-      <div class="card-header bg-dark text-white">
-        <h6 class="mb-0">Registered Hotels</h6>
+<!-- Add Hotel Panel -->
+<div class="panel mb-4">
+  <div class="panel-header">
+    <h2 class="panel-title">Register New Hotel</h2>
+    <div class="panel-icon">🏨</div>
+  </div>
+  <div class="panel-body">
+
+    <div *ngIf="successMessage" class="alert-success-custom">{{ successMessage }}</div>
+    <div *ngIf="errorMessage"   class="alert-danger-custom">{{ errorMessage }}</div>
+
+    <form [formGroup]="hotelForm" (ngSubmit)="onSubmit()">
+      <div class="d-flex gap-3 align-items-start">
+        <div class="flex-grow-1">
+          <input
+            type="text"
+            class="form-control"
+            formControlName="hotelName"
+            placeholder="Enter hotel name..."
+          >
+        </div>
+        <button type="submit" class="btn-primary-custom" [disabled]="!hotelForm.valid">
+          Add Hotel
+        </button>
       </div>
-      <ul class="list-group list-group-flush">
-        @for (hotel of hotels; track hotel.id) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            {{ hotel.hotelName }}
-            <span class="badge bg-secondary rounded-pill">ID: {{ hotel.id }}</span>
-          </li>
-        } @empty {
-          <li class="list-group-item text-center text-muted py-3">No hotels found.</li>
-        }
-      </ul>
-    </div>
+    </form>
 
   </div>
+</div>
+
+<!-- Hotels List Panel -->
+<div class="panel">
+  <div class="panel-header">
+    <h2 class="panel-title">Registered Hotels</h2>
+    <span class="count-badge">{{ hotels.length }}</span>
+  </div>
+
+  <ul class="hotel-list">
+    @for (hotel of hotels; track hotel.id) {
+      <li class="hotel-item">
+        <span class="hotel-name">
+          <span class="hotel-dot"></span>
+          {{ hotel.hotelName }}
+        </span>
+        <span class="hotel-id">ID: {{ hotel.id }}</span>
+      </li>
+    } @empty {
+      <li class="hotel-item">
+        <div class="empty-state">
+          <div class="empty-icon">🏨</div>
+          <p>No hotels registered yet.</p>
+        </div>
+      </li>
+    }
+  </ul>
 </div>

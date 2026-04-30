@@ -1,0 +1,240 @@
+
+/* ── Contract Count Chip ───────────────────────────────────── */
+.contract-count {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--blue-600);
+  background: var(--blue-50);
+  border: 1px solid var(--blue-100);
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+}
+
+/* ── Contract Card ─────────────────────────────────────────── */
+.contract-card {
+  background: #fff;
+  border: 1px solid var(--slate-200);
+  border-radius: 14px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  animation: fadeUp 0.3s ease both;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+    transform: translateY(-1px);
+  }
+}
+
+.contract-card-header {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--slate-100);
+  background: var(--slate-50);
+}
+
+.hotel-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--slate-900);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hotel-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--blue-100);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.contract-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.contract-body {
+  padding: 1rem 1.5rem;
+}
+
+/* ── Room Inventory Item ───────────────────────────────────── */
+.room-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--slate-50);
+  border: 1.5px solid var(--slate-200);
+  border-radius: 10px;
+  margin-bottom: 0.6rem;
+  gap: 1rem;
+  transition: border-color 0.15s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    border-color: var(--blue-200);
+  }
+}
+
+.room-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-type-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--slate-800);
+}
+
+.room-details {
+  font-size: 0.75rem;
+  color: var(--slate-400);
+  margin-top: 0.2rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.avail-num  { font-weight: 700; }
+.avail-ok   { color: var(--green-600); }
+.avail-none { color: var(--red-600); }
+
+/* ── Booking Controls ──────────────────────────────────────── */
+.booking-controls {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--slate-200);
+  border-radius: 9px;
+  overflow: hidden;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.qty-input {
+  border: none;
+  width: 52px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--slate-800);
+  padding: 0.5rem 0.25rem;
+  outline: none;
+  background: transparent;
+  border-right: 1px solid var(--slate-200);
+  border-left: 1px solid var(--slate-200);
+
+  &::placeholder {
+    color: var(--slate-400);
+    font-weight: 400;
+  }
+
+  &:focus {
+    background: var(--blue-50);
+  }
+}
+
+.ctrl-btn {
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.ctrl-btn-book {
+  color: var(--red-600);
+
+  &:hover:not(:disabled) {
+    background: var(--red-50);
+  }
+}
+
+.ctrl-btn-free {
+  color: var(--green-600);
+
+  &:hover:not(:disabled) {
+    background: var(--green-50);
+  }
+}
+
+/* ── No Rooms Text ─────────────────────────────────────────── */
+.no-rooms {
+  font-size: 0.8rem;
+  color: var(--slate-400);
+  padding: 0.5rem 0;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ── Mobile Responsiveness ─────────────────────────────────── */
+@media (max-width: 640px) {
+  
+  .contract-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  /* Force the chips to wrap naturally with consistent spacing */
+  .contract-meta {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 0.5rem;
+  }
+
+  .room-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  /* Allow the room details text to break onto two lines if needed */
+  .room-details {
+    flex-wrap: wrap; 
+    gap: 0.5rem 1rem;
+  }
+
+  .booking-controls {
+    width: 100%;
+    justify-content: space-between; 
+  }
+
+  /* Give the input a minimum width so it never gets crushed */
+  .qty-input {
+    flex: 1;
+    width: auto; 
+    min-width: 50px; 
+  }
+  
+  /* Slightly reduce horizontal padding on buttons to save space */
+  .ctrl-btn {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}

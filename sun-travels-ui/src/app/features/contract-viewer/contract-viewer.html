@@ -1,101 +1,76 @@
-<div class="container mt-4 mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="text-primary border-bottom border-primary pb-2 inline-block">Active Contracts</h3>
+<!-- contract-viewer.component.html -->
+
+<div class="page-header">
+  <div>
+    <p class="page-subtitle">Overview</p>
+    <h1 class="page-title">Active Contracts</h1>
   </div>
+  <span class="contract-count">{{ contracts.length }} Contracts</span>
+</div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger">
-    {{ errorMessage }}
-  </div>
+<div *ngIf="errorMessage" class="alert-danger-custom">{{ errorMessage }}</div>
 
-  <div class="card shadow-sm">
-    <div class="card-body p-0 table-responsive">
-      <!-- Added align-middle to keep rows looking clean with the new inputs -->
-      <table class="table table-hover table-striped mb-0 align-middle">
-        <thead class="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Hotel Name</th>
-            <th>Valid From</th>
-            <th>Valid To</th>
-            <th>Markup (%)</th>
-            <th style="min-width: 350px;">Room Inventory & Management</th>
-          </tr>
-        </thead>
-        <tbody>
+@for (contract of contracts; track contract.id) {
+  <div class="contract-card">
+    <div class="contract-card-header">
 
-          @for (contract of contracts; track contract.id) {
-          <tr>
-            <td class="fw-bold">{{ contract.id }}</td>
-            <td>{{ contract.hotel.hotelName }}</td>
-            <td>{{ contract.validFrom }}</td>
-            <td>
-              {{ contract.validTo }}
-              <!-- This badge only appears if the date has passed -->
-              <span *ngIf="isExpired(contract.validTo)" class="badge bg-danger ms-2"
-                title="This contract is no longer active">
-                Expired
+      <div class="hotel-name">
+        <div class="hotel-icon">🏨</div>
+        {{ contract.hotel.hotelName }}
+      </div>
+
+      <div class="contract-meta">
+        <span class="meta-chip chip-id">ID: {{ contract.id }}</span>
+        <span class="meta-chip chip-date">{{ contract.validFrom }} → {{ contract.validTo }}</span>
+        <span class="meta-chip chip-markup">{{ contract.markupPercentage }}% Markup</span>
+        <span *ngIf="isExpired(contract.validTo)" class="meta-chip chip-expired">Expired</span>
+      </div>
+
+    </div>
+    <div class="contract-body">
+
+      @for (room of contract.roomTypes; track room.id) {
+        <div class="room-item">
+          <div class="room-info">
+            <div class="room-type-name">{{ room.typeName }}</div>
+            <div class="room-details">
+              <span>Max Adults: {{ room.maxAdults }}</span>
+              <span>Total: {{ room.noOfRooms }}</span>
+              <span class="avail-num"
+                [ngClass]="{ 'avail-ok': room.availableRooms > 0, 'avail-none': room.availableRooms === 0 }">
+                Available: {{ room.availableRooms }}
               </span>
-            </td>
-            <td><span class="badge bg-success fs-6">{{ contract.markupPercentage }}%</span></td>
+            </div>
+          </div>
 
-            <!-- UPDATED: Interactive Room Inventory Cell -->
-            <td>
-              <div class="d-flex flex-column gap-2 my-1">
-                @for (room of contract.roomTypes; track room.id) {
-                <div class="d-flex justify-content-between align-items-center bg-white border rounded p-2 shadow-sm">
+          <div class="booking-controls">
+            <button
+              class="ctrl-btn ctrl-btn-book"
+              [disabled]="room.availableRooms === 0"
+              title="Log a booking"
+              (click)="logBooking(room.id, qtyInput.value); qtyInput.value = ''">
+              − Book
+            </button>
+            <input type="number" #qtyInput class="qty-input" min="1" placeholder="Qty">
+            <button
+              class="ctrl-btn ctrl-btn-free"
+              [disabled]="room.availableRooms === room.noOfRooms"
+              title="Release a booking"
+              (click)="releaseBooking(room.id, qtyInput.value); qtyInput.value = ''">
+              + Free
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <p class="no-rooms">No rooms attached to this contract.</p>
+      }
 
-                  <!-- Room Info & Live Inventory Numbers -->
-                  <div>
-                    <strong>{{ room.typeName }}</strong>
-                    <span class="text-muted small ms-1">(Max Adults: {{ room.maxAdults }})</span>
-                    <div class="mt-1 small">
-                      <span class="text-secondary me-2">Total: {{ room.noOfRooms }}</span>
-                      <span class="fw-bold"
-                        [ngClass]="{'text-success': room.availableRooms > 0, 'text-danger': room.availableRooms === 0}">
-                        Available: {{ room.availableRooms }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- Booking & Releasing Action Inputs -->
-                  <div class="input-group input-group-sm" style="max-width: 180px;">
-                    <!-- Shared quantity input -->
-                    <input type="number" #qtyInput class="form-control text-center" min="1" placeholder="Qty">
-
-                    <!-- Book Button (Decreases Inventory) -->
-                    <button class="btn btn-outline-danger fw-bold px-2" [disabled]="room.availableRooms === 0"
-                      title="Log a booking (Subtract rooms)"
-                      (click)="logBooking(room.id, qtyInput.value); qtyInput.value=''">
-                      - Book
-                    </button>
-
-                    <!-- Release Button (Increases Inventory) -->
-                    <button class="btn btn-outline-success fw-bold px-2"
-                      [disabled]="room.availableRooms === room.noOfRooms" title="Release a booking (Add rooms back)"
-                      (click)="releaseBooking(room.id, qtyInput.value); qtyInput.value=''">
-                      + Free
-                    </button>
-                  </div>
-
-                </div>
-                }
-                @empty {
-                <div class="text-muted small">No rooms attached</div>
-                }
-              </div>
-            </td>
-          </tr>
-          }
-          @empty {
-          <tr>
-            <td colspan="6" class="text-center py-4 text-muted">
-              No contracts found in the database.
-            </td>
-          </tr>
-          }
-
-        </tbody>
-      </table>
     </div>
   </div>
-</div>
+} @empty {
+  <div class="empty-state">
+    <div class="empty-icon">📄</div>
+    <h6>No contracts found</h6>
+    <p>No contracts have been loaded into the database yet.</p>
+  </div>
+}

@@ -1,89 +1,91 @@
-<div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
-    <div class="card shadow-sm mt-4 mb-5">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Load New Contract</h4>
+<!-- contract-management.component.html -->
+
+<div class="page-header">
+  <div>
+    <p class="page-subtitle">Administration</p>
+    <h1 class="page-title">Load New Contract</h1>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2 class="panel-title">Contract Details</h2>
+    <div class="panel-icon">📄</div>
+  </div>
+  <div class="panel-body">
+
+    <div *ngIf="successMessage" class="alert-success-custom">{{ successMessage }}</div>
+    <div *ngIf="errorMessage"   class="alert-danger-custom">{{ errorMessage }}</div>
+
+    <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-row">
+        <label class="form-label-custom">Select Hotel</label>
+        <select class="form-select" formControlName="hotelId">
+          <option value="" disabled>Choose a hotel...</option>
+          <option *ngFor="let hotel of hotels" [value]="hotel.id">{{ hotel.hotelName }}</option>
+        </select>
       </div>
-      <div class="card-body">
-        
-        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-        <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="d-flex flex-column gap-3">
-          
-          <div class="form-group d-flex flex-column">
-            <label class="form-label fw-bold">Select Hotel</label>
-            <select class="form-select" formControlName="hotelId">
-              <option value="" disabled>Choose a hotel...</option>
-              <option *ngFor="let hotel of hotels" [value]="hotel.id">{{ hotel.hotelName }}</option>
-            </select>
-          </div>
+      <div class="row g-3 form-row">
+        <div class="col-6">
+          <label class="form-label-custom">Valid From</label>
+          <input type="date" class="form-control" formControlName="validFrom">
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Valid To</label>
+          <input type="date" class="form-control" formControlName="validTo">
+        </div>
+      </div>
 
-          <div class="form-group d-flex flex-column">
-            <label class="form-label fw-bold">Valid From</label>
-            <input type="date" class="form-control" formControlName="validFrom">
-          </div>
+      <div class="form-row">
+        <label class="form-label-custom">Markup Percentage (%)</label>
+        <input type="number" class="form-control" formControlName="markupPercentage" placeholder="e.g. 15">
+      </div>
 
-          <div class="form-group d-flex flex-column">
-            <label class="form-label fw-bold">Valid To</label>
-            <input type="date" class="form-control" formControlName="validTo">
-          </div>
+      <!-- Room Types Section -->
+      <div class="section-divider">
+        <span class="section-label">Room Types</span>
+        <button type="button" class="btn-outline-custom" (click)="addRoomType()">+ Add Room Type</button>
+      </div>
 
-          <div class="form-group d-flex flex-column">
-            <label class="form-label fw-bold">Markup Percentage (%)</label>
-            <input type="number" class="form-control" formControlName="markupPercentage" placeholder="e.g. 15">
-          </div>
-
-          <hr class="my-3">
-
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0 text-primary">Room Types</h5>
-            <button type="button" class="btn btn-outline-primary btn-sm" (click)="addRoomType()">
-              + Add Room Type
-            </button>
-          </div>
-
-          <div formArrayName="roomTypes" class="d-flex flex-column gap-4">
-            <div *ngFor="let room of roomTypes.controls; let i = index" [formGroupName]="i" class="card border-info">
-              
-              <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                <h6 class="text-info mb-0 fw-bold">Room #{{ i + 1 }}</h6>
-                <button *ngIf="roomTypes.length > 1" type="button" class="btn btn-sm btn-outline-danger" (click)="removeRoomType(i)">Remove</button>
+      <div formArrayName="roomTypes">
+        @for (room of roomTypes.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="room-card">
+            <div class="room-card-header">
+              <span class="room-number">Room #{{ i + 1 }}</span>
+              @if (roomTypes.length > 1) {
+                <button type="button" class="btn-remove" (click)="removeRoomType(i)">Remove</button>
+              }
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label-custom">Type Name</label>
+                <input type="text" class="form-control" formControlName="typeName" placeholder="e.g. Standard, Deluxe">
               </div>
-
-              <div class="card-body d-flex flex-column gap-3">
-                <div class="form-group d-flex flex-column">
-                  <label class="form-label text-muted small mb-1">Type Name (e.g. Standard, Deluxe)</label>
-                  <input type="text" class="form-control" formControlName="typeName">
-                </div>
-
-                <div class="form-group d-flex flex-column">
-                  <label class="form-label text-muted small mb-1">Base Price ($)</label>
-                  <input type="number" class="form-control" formControlName="price">
-                </div>
-
-                <div class="form-group d-flex flex-column">
-                  <label class="form-label text-muted small mb-1">Number of Rooms</label>
-                  <input type="number" class="form-control" formControlName="noOfRooms">
-                </div>
-
-                <div class="form-group d-flex flex-column">
-                  <label class="form-label text-muted small mb-1">Max Adults per Room</label>
-                  <input type="number" class="form-control" formControlName="maxAdults">
-                </div>
+              <div class="col-6">
+                <label class="form-label-custom">Base Price ($)</label>
+                <input type="number" class="form-control" formControlName="price">
               </div>
-
+              <div class="col-6">
+                <label class="form-label-custom">No. of Rooms</label>
+                <input type="number" class="form-control" formControlName="noOfRooms">
+              </div>
+              <div class="col-12">
+                <label class="form-label-custom">Max Adults per Room</label>
+                <input type="number" class="form-control" formControlName="maxAdults">
+              </div>
             </div>
           </div>
-
-          <div class="mt-4">
-            <button type="submit" class="btn btn-success w-100 py-2 fw-bold" [disabled]="!contractForm.valid">
-              Save Contract to Database
-            </button>
-          </div>
-
-        </form>
+        }
       </div>
-    </div>
+
+      <div class="mt-4">
+        <button type="submit" class="btn-primary-custom w-100" [disabled]="!contractForm.valid">
+          Save Contract
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>
