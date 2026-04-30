@@ -10,67 +10,75 @@
 
 <div *ngIf="errorMessage" class="alert-danger-custom">{{ errorMessage }}</div>
 
+<!-- 1. SHOW SKELETON WHILE LOADING -->
+@if (isLoading) {
+<div class="skeleton-card">
+  <div class="skeleton-line title"></div>
+  <div class="skeleton-line meta"></div>
+  <div class="skeleton-line box"></div>
+</div>
+<div class="skeleton-card">
+  <div class="skeleton-line title"></div>
+  <div class="skeleton-line meta"></div>
+  <div class="skeleton-line box"></div>
+</div>
+} @else {
 @for (contract of contracts; track contract.id) {
-  <div class="contract-card">
-    <div class="contract-card-header">
+<div class="contract-card">
+  <div class="contract-card-header">
 
-      <div class="hotel-name">
-        <div class="hotel-icon">🏨</div>
-        {{ contract.hotel.hotelName }}
-      </div>
-
-      <div class="contract-meta">
-        <span class="meta-chip chip-id">ID: {{ contract.id }}</span>
-        <span class="meta-chip chip-date">{{ contract.validFrom }} → {{ contract.validTo }}</span>
-        <span class="meta-chip chip-markup">{{ contract.markupPercentage }}% Markup</span>
-        <span *ngIf="isExpired(contract.validTo)" class="meta-chip chip-expired">Expired</span>
-      </div>
-
+    <div class="hotel-name">
+      <div class="hotel-icon">🏨</div>
+      {{ contract.hotel.hotelName }}
     </div>
-    <div class="contract-body">
 
-      @for (room of contract.roomTypes; track room.id) {
-        <div class="room-item">
-          <div class="room-info">
-            <div class="room-type-name">{{ room.typeName }}</div>
-            <div class="room-details">
-              <span>Max Adults: {{ room.maxAdults }}</span>
-              <span>Total: {{ room.noOfRooms }}</span>
-              <span class="avail-num"
-                [ngClass]="{ 'avail-ok': room.availableRooms > 0, 'avail-none': room.availableRooms === 0 }">
-                Available: {{ room.availableRooms }}
-              </span>
-            </div>
-          </div>
+    <div class="contract-meta">
+      <span class="meta-chip chip-id">ID: {{ contract.id }}</span>
+      <span class="meta-chip chip-date">{{ contract.validFrom }} → {{ contract.validTo }}</span>
+      <span class="meta-chip chip-markup">{{ contract.markupPercentage }}% Markup</span>
+      <span *ngIf="isExpired(contract.validTo)" class="meta-chip chip-expired">Expired</span>
+    </div>
 
-          <div class="booking-controls">
-            <button
-              class="ctrl-btn ctrl-btn-book"
-              [disabled]="room.availableRooms === 0"
-              title="Log a booking"
-              (click)="logBooking(room.id, qtyInput.value); qtyInput.value = ''">
-              − Book
-            </button>
-            <input type="number" #qtyInput class="qty-input" min="1" placeholder="Qty">
-            <button
-              class="ctrl-btn ctrl-btn-free"
-              [disabled]="room.availableRooms === room.noOfRooms"
-              title="Release a booking"
-              (click)="releaseBooking(room.id, qtyInput.value); qtyInput.value = ''">
-              + Free
-            </button>
-          </div>
+  </div>
+  <div class="contract-body">
+
+    @for (room of contract.roomTypes; track room.id) {
+    <div class="room-item">
+      <div class="room-info">
+        <div class="room-type-name">{{ room.typeName }}</div>
+        <div class="room-details">
+          <span>Max Adults: {{ room.maxAdults }}</span>
+          <span>Total: {{ room.noOfRooms }}</span>
+          <span class="avail-num"
+            [ngClass]="{ 'avail-ok': room.availableRooms > 0, 'avail-none': room.availableRooms === 0 }">
+            Available: {{ room.availableRooms }}
+          </span>
         </div>
-      } @empty {
-        <p class="no-rooms">No rooms attached to this contract.</p>
-      }
+      </div>
 
+      <div class="booking-controls">
+        <button class="ctrl-btn ctrl-btn-book" [disabled]="room.availableRooms === 0" title="Log a booking"
+          (click)="logBooking(room.id, qtyInput.value); qtyInput.value = ''">
+          − Book
+        </button>
+        <input type="number" #qtyInput class="qty-input" min="1" placeholder="Qty">
+        <button class="ctrl-btn ctrl-btn-free" [disabled]="room.availableRooms === room.noOfRooms"
+          title="Release a booking" (click)="releaseBooking(room.id, qtyInput.value); qtyInput.value = ''">
+          + Free
+        </button>
+      </div>
     </div>
+    } @empty {
+    <p class="no-rooms">No rooms attached to this contract.</p>
+    }
+
   </div>
+</div>
 } @empty {
-  <div class="empty-state">
-    <div class="empty-icon">📄</div>
-    <h6>No contracts found</h6>
-    <p>No contracts have been loaded into the database yet.</p>
-  </div>
+<div class="empty-state">
+  <div class="empty-icon">📄</div>
+  <h6>No contracts found</h6>
+  <p>No contracts have been loaded into the database yet.</p>
+</div>
+}
 }

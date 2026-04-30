@@ -4,6 +4,9 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } fr
 import { SearchService } from '../../core/services/search';
 import { SearchResult, SearchRequest, RoomRequest } from '../../core/models/search';
 
+// 1. IMPORT SWEETALERT
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-search-engine',
   standalone: true,
@@ -94,10 +97,26 @@ export class SearchEngine implements OnInit {
           this.errorMessage = 'Failed to execute search. Please verify your backend connection.';
           this.isSearching = false;
           this.cdr.detectChanges();
+
+          // 2. ADD SWEETALERT FOR API ERRORS
+          Swal.fire({
+            title: 'Search Failed',
+            text: 'Could not connect to the server to find available rooms.',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+          });
         }
       });
     } else {
       this.searchForm.markAllAsTouched();
+
+      // 3. ADD SWEETALERT FOR FORM VALIDATION
+      Swal.fire({
+        title: 'Incomplete Form',
+        text: 'Please fill in all required search fields correctly before searching.',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6'
+      });
     }
   }
 }

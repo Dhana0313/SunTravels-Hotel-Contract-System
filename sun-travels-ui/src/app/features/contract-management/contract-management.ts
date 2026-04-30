@@ -5,6 +5,9 @@ import { HotelService } from '../../core/services/hotel';
 import { ContractService } from '../../core/services/contract';
 import { Hotel } from '../../core/models/hotel';
 
+// 1. IMPORT SWEETALERT
+import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-contract-management',
   standalone: true,
@@ -22,7 +25,7 @@ export class ContractManagement implements OnInit {
     private fb: FormBuilder,
     private hotelService: HotelService,
     private contractService: ContractService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -45,7 +48,17 @@ export class ContractManagement implements OnInit {
   private loadHotels(): void {
     this.hotelService.getAllHotels().subscribe({
       next: (data) => this.hotels = data,
-      error: (err) => console.error('Failed to load hotels', err)
+      error: (err) => {
+        console.error('Failed to load hotels', err);
+
+        // 2. ADD SWEETALERT FOR API ERROR (Dropdown failure)
+        Swal.fire({
+          title: 'Connection Error',
+          text: 'Failed to load the list of hotels. Please refresh the page or check your connection.',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
     });
   }
 
@@ -82,14 +95,39 @@ export class ContractManagement implements OnInit {
           this.contractForm.reset();
           this.roomTypes.clear();
           this.addRoomType(); // Reset UI state
+
+          // 3. ADD SWEETALERT SUCCESS TOAST
+          Swal.fire({
+            title: 'Contract Saved!',
+            text: 'The new contract has been added to the system.',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+          });
         },
         error: (err) => {
           this.errorMessage = 'Failed to save contract. Please check your data and try again.';
           this.successMessage = '';
+
+          // 4. ADD SWEETALERT ERROR MODAL
+          Swal.fire({
+            title: 'Save Failed',
+            text: err.error || 'Failed to save the contract. Please verify the details and try again.',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+          });
         }
       });
     } else {
       this.contractForm.markAllAsTouched(); // Highlights missing fields in red
+
+      // 5. ADD SWEETALERT VALIDATION WARNING
+      Swal.fire({
+        title: 'Incomplete Form',
+        text: 'Please fill in all required fields correctly before saving.',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6'
+      });
     }
   }
 }
