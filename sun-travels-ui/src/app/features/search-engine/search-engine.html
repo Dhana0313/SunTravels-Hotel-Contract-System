@@ -7,129 +7,134 @@
   </div>
 </div>
 
-<div class="row g-4 align-items-start">
+<!-- CHANGED: Replaced the side-by-side grid with a vertical stack -->
+<div class="d-flex flex-column gap-4 mb-5">
 
-  <!-- ── Search Form Panel ──────────────────────────────────── -->
-  <div class="col-lg-4">
-    <div class="panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Search Criteria</h2>
-        <div class="panel-icon">🔍</div>
-      </div>
-      <div class="panel-body">
-        <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+  <!-- ── Search Form Panel (Top) ──────────────────────────────────── -->
+  <div class="panel w-100">
+    <div class="panel-header">
+      <h2 class="panel-title">Search Criteria</h2>
+      <div class="panel-icon">🔍</div>
+    </div>
+    <div class="panel-body">
+      <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
 
-          <div class="form-group">
+        <!-- CHANGED: Put Check-In and Nights side-by-side using a row -->
+        <div class="row g-3 mb-2">
+          <div class="col-md-6 form-group mb-0">
             <label class="form-label-custom">Check-In Date</label>
             <input type="date" class="form-control" formControlName="checkInDate">
           </div>
 
-          <div class="form-group">
+          <div class="col-md-6 form-group mb-0">
             <label class="form-label-custom">Number of Nights</label>
             <input type="number" class="form-control" formControlName="noOfNights" placeholder="e.g. 3">
           </div>
+        </div>
 
-          <hr class="form-divider">
+        <hr class="form-divider">
 
-          <div class="section-divider">
-            <span class="section-label">Rooms Required</span>
-            <button type="button" class="btn-add" (click)="addRoomRequest()">+ Add Room</button>
-          </div>
+        <div class="section-divider d-flex justify-content-between align-items-center mb-3">
+          <span class="section-label fw-bold text-secondary">Rooms Required</span>
+          <button type="button" class="btn-add" (click)="addRoomRequest()">+ Add Room</button>
+        </div>
 
-          <div formArrayName="roomRequests">
-            @for (room of roomRequests.controls; track $index; let i = $index) {
-              <div [formGroupName]="i" class="room-req-card">
-                @if (roomRequests.length > 1) {
-                  <button type="button" class="remove-btn" (click)="removeRoomRequest(i)" title="Remove">×</button>
-                }
-                <div class="room-label">Room {{ i + 1 }}</div>
-                <div class="row g-2">
-                  <div class="col-6">
-                    <label class="form-label-custom">Adults</label>
-                    <input type="number" class="form-control" formControlName="noOfAdults" placeholder="2">
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label-custom">Quantity</label>
-                    <input type="number" class="form-control" formControlName="roomQuantity" placeholder="1">
-                  </div>
+        <!-- CHANGED: Made the room requests a grid so they line up horizontally -->
+        <div formArrayName="roomRequests" class="row g-3">
+          @for (room of roomRequests.controls; track $index; let i = $index) {
+          <div [formGroupName]="i" class="col-md-6 col-lg-4">
+            <div class="room-req-card h-100 mb-0">
+              @if (roomRequests.length > 1) {
+              <button type="button" class="remove-btn" (click)="removeRoomRequest(i)" title="Remove">×</button>
+              }
+              <div class="room-label">Room {{ i + 1 }}</div>
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label-custom">Adults</label>
+                  <input type="number" class="form-control" formControlName="noOfAdults" placeholder="2">
+                </div>
+                <div class="col-6">
+                  <label class="form-label-custom">Quantity</label>
+                  <input type="number" class="form-control" formControlName="roomQuantity" placeholder="1">
                 </div>
               </div>
-            }
+            </div>
           </div>
+          }
+        </div>
 
-          <button type="submit" class="btn-search" [disabled]="!searchForm.valid || isSearching">
+        <!-- CHANGED: Pushed the search button to the right side so it doesn't span 100% of the wide screen -->
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn-search px-5 m-0" style="width: auto;"
+            [disabled]="!searchForm.valid || isSearching">
             <span class="spinner" *ngIf="isSearching"></span>
             {{ isSearching ? 'Searching...' : 'Find Rooms' }}
           </button>
+        </div>
 
-          <div *ngIf="errorMessage" class="alert-danger-custom mt-3">{{ errorMessage }}</div>
+        <div *ngIf="errorMessage" class="alert-danger-custom mt-3">{{ errorMessage }}</div>
 
-        </form>
-      </div>
+      </form>
     </div>
   </div>
 
-  <!-- ── Results Panel ──────────────────────────────────────── -->
-  <div class="col-lg-8">
-    <div class="panel results-panel">
-      <div class="panel-header">
-        <h2 class="panel-title">Search Results</h2>
-        <span *ngIf="results.length > 0" class="result-count">{{ results.length }} Found</span>
-      </div>
-
-      <!-- Not yet searched -->
-      @if (!hasSearched && !isSearching) {
-        <div class="empty-state">
-          <div class="empty-icon">🏨</div>
-          <h6>Ready to search</h6>
-          <p>Enter your criteria on the left to find available accommodations.</p>
-        </div>
-      }
-
-      <!-- Searched but no results -->
-      @if (hasSearched && results.length === 0) {
-        <div class="empty-state">
-          <div class="empty-icon">😔</div>
-          <h6>No availability found</h6>
-          <p>No contracts match your required dates or inventory.</p>
-        </div>
-      }
-
-      <!-- Results table -->
-      @if (results.length > 0) {
-        <div class="table-responsive">
-          <table class="results-table">
-            <thead>
-              <tr>
-                <th>Hotel Name</th>
-                <th>Room Type</th>
-                <th>Total Price</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (result of results; track $index) {
-                <tr>
-                  <td class="hotel-cell">{{ result.hotelName }}</td>
-                  <td class="room-type-cell">{{ result.roomType }}</td>
-                  <td class="price-cell">${{ result.price | number:'1.2-2' }}</td>
-                  <td>
-                    <span class="badge-avail"
-                      [ngClass]="{
-                        'badge-available':   result.availabilityStatus === 'Available',
-                        'badge-unavailable': result.availabilityStatus !== 'Available'
-                      }">
-                      {{ result.availabilityStatus }}
-                    </span>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-
+  <!-- ── Results Panel (Bottom) ──────────────────────────────────────── -->
+  <div class="panel results-panel w-100">
+    <div class="panel-header">
+      <h2 class="panel-title">Search Results</h2>
+      <span *ngIf="results.length > 0" class="result-count">{{ results.length }} Found</span>
     </div>
-  </div>
 
+    <!-- Not yet searched -->
+    @if (!hasSearched && !isSearching) {
+    <div class="empty-state">
+      <div class="empty-icon">🏨</div>
+      <h6>Ready to search</h6>
+      <p>Enter your criteria above to find available accommodations.</p>
+    </div>
+    }
+
+    <!-- Searched but no results -->
+    @if (hasSearched && results.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">😔</div>
+      <h6>No availability found</h6>
+      <p>No contracts match your required dates or inventory.</p>
+    </div>
+    }
+
+    <!-- Results table -->
+    @if (results.length > 0) {
+    <div class="table-responsive">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Hotel Name</th>
+            <th>Room Type</th>
+            <th>Total Price</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (result of results; track $index) {
+          <tr>
+            <td class="hotel-cell">{{ result.hotelName }}</td>
+            <td class="room-type-cell">{{ result.roomType }}</td>
+            <td class="price-cell">${{ result.price | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge-avail" [ngClass]="{
+                      'badge-available':   result.availabilityStatus === 'Available',
+                      'badge-unavailable': result.availabilityStatus !== 'Available'
+                    }">
+                {{ result.availabilityStatus }}
+              </span>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+
+  </div>
 </div>
