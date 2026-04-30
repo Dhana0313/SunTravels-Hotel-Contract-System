@@ -75,4 +75,13 @@ export class ContractViewer implements OnInit {
       alert('Please enter a valid quantity greater than 0.');
     }
   }
+
+  isExpired(validToDate: string): boolean {
+    const today = new Date();
+    // Reset time to midnight so it only compares the date
+    today.setHours(0, 0, 0, 0); 
+    const expirationDate = new Date(validToDate);
+    
+    return expirationDate < today;
+  }
 }

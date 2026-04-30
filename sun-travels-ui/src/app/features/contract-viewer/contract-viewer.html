@@ -28,7 +28,14 @@
             <td class="fw-bold">{{ contract.id }}</td>
             <td>{{ contract.hotel.hotelName }}</td>
             <td>{{ contract.validFrom }}</td>
-            <td>{{ contract.validTo }}</td>
+            <td>
+              {{ contract.validTo }}
+              <!-- This badge only appears if the date has passed -->
+              <span *ngIf="isExpired(contract.validTo)" class="badge bg-danger ms-2"
+                title="This contract is no longer active">
+                Expired
+              </span>
+            </td>
             <td><span class="badge bg-success fs-6">{{ contract.markupPercentage }}%</span></td>
 
             <!-- UPDATED: Interactive Room Inventory Cell -->
