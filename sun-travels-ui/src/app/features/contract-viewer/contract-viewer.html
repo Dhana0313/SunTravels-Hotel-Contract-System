@@ -9,7 +9,8 @@
 
   <div class="card shadow-sm">
     <div class="card-body p-0 table-responsive">
-      <table class="table table-hover table-striped mb-0">
+      <!-- Added align-middle to keep rows looking clean with the new inputs -->
+      <table class="table table-hover table-striped mb-0 align-middle">
         <thead class="table-dark">
           <tr>
             <th>ID</th>
@@ -17,36 +18,73 @@
             <th>Valid From</th>
             <th>Valid To</th>
             <th>Markup (%)</th>
-            <th>Room Types Included</th>
+            <th style="min-width: 350px;">Room Inventory & Management</th>
           </tr>
         </thead>
         <tbody>
-          
+
           @for (contract of contracts; track contract.id) {
-            <tr>
-              <td class="fw-bold">{{ contract.id }}</td>
-              <td>{{ contract.hotel.hotelName }}</td>
-              <td>{{ contract.validFrom }}</td>
-              <td>{{ contract.validTo }}</td>
-              <td><span class="badge bg-success fs-6">{{ contract.markupPercentage }}%</span></td>
-              <td>
-                <ul class="list-unstyled mb-0 small">
-                  @for (room of contract.roomTypes; track room.id) {
-                    <li>• {{ room.typeName }} (Max Adults: {{ room.maxAdults }})</li>
-                  }
-                  @empty {
-                    <li class="text-muted">No rooms attached</li>
-                  }
-                </ul>
-              </td>
-            </tr>
+          <tr>
+            <td class="fw-bold">{{ contract.id }}</td>
+            <td>{{ contract.hotel.hotelName }}</td>
+            <td>{{ contract.validFrom }}</td>
+            <td>{{ contract.validTo }}</td>
+            <td><span class="badge bg-success fs-6">{{ contract.markupPercentage }}%</span></td>
+
+            <!-- UPDATED: Interactive Room Inventory Cell -->
+            <td>
+              <div class="d-flex flex-column gap-2 my-1">
+                @for (room of contract.roomTypes; track room.id) {
+                <div class="d-flex justify-content-between align-items-center bg-white border rounded p-2 shadow-sm">
+
+                  <!-- Room Info & Live Inventory Numbers -->
+                  <div>
+                    <strong>{{ room.typeName }}</strong>
+                    <span class="text-muted small ms-1">(Max Adults: {{ room.maxAdults }})</span>
+                    <div class="mt-1 small">
+                      <span class="text-secondary me-2">Total: {{ room.noOfRooms }}</span>
+                      <span class="fw-bold"
+                        [ngClass]="{'text-success': room.availableRooms > 0, 'text-danger': room.availableRooms === 0}">
+                        Available: {{ room.availableRooms }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Booking & Releasing Action Inputs -->
+                  <div class="input-group input-group-sm" style="max-width: 180px;">
+                    <!-- Shared quantity input -->
+                    <input type="number" #qtyInput class="form-control text-center" min="1" placeholder="Qty">
+
+                    <!-- Book Button (Decreases Inventory) -->
+                    <button class="btn btn-outline-danger fw-bold px-2" [disabled]="room.availableRooms === 0"
+                      title="Log a booking (Subtract rooms)"
+                      (click)="logBooking(room.id, qtyInput.value); qtyInput.value=''">
+                      - Book
+                    </button>
+
+                    <!-- Release Button (Increases Inventory) -->
+                    <button class="btn btn-outline-success fw-bold px-2"
+                      [disabled]="room.availableRooms === room.noOfRooms" title="Release a booking (Add rooms back)"
+                      (click)="releaseBooking(room.id, qtyInput.value); qtyInput.value=''">
+                      + Free
+                    </button>
+                  </div>
+
+                </div>
+                }
+                @empty {
+                <div class="text-muted small">No rooms attached</div>
+                }
+              </div>
+            </td>
+          </tr>
           }
           @empty {
-            <tr>
-              <td colspan="6" class="text-center py-4 text-muted">
-                No contracts found in the database.
-              </td>
-            </tr>
+          <tr>
+            <td colspan="6" class="text-center py-4 text-muted">
+              No contracts found in the database.
+            </td>
+          </tr>
           }
 
         </tbody>

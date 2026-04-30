@@ -2,6 +2,7 @@ export interface RoomTypeRequest {
   typeName: string;
   price: number;
   noOfRooms: number;
+  availableRooms: number;
   maxAdults: number;
 }
 

@@ -8,9 +8,10 @@ import { ContractRequest, ContractResponse } from '../models/contract';
 })
 export class ContractService {
 
+  // Base URL pointing to the Contract Controller
   private apiUrl = 'http://localhost:8080/api/contracts';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   saveContract(contractData: ContractRequest): Observable<any> {
     return this.http.post<any>(this.apiUrl, contractData);
@@ -18,5 +19,14 @@ export class ContractService {
 
   getAllContracts(): Observable<ContractResponse[]> {
     return this.http.get<ContractResponse[]>(this.apiUrl);
+  }
+
+  // UPDATED: Corrected the URL to append to the base apiUrl
+  bookRoom(roomId: number, quantity: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/rooms/${roomId}/book?quantity=${quantity}`, {});
+  }
+
+  releaseRoom(roomId: number, quantity: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/rooms/${roomId}/release?quantity=${quantity}`, {});
   }
 }

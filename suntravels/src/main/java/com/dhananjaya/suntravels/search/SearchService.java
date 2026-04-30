@@ -49,7 +49,7 @@ public class SearchService {
                 boolean isAvailable = true;
 
                 // Check if the hotel has enough total rooms of this type
-                if (roomType.getNoOfRooms() < totalRoomsRequested) {
+                if (roomType.getAvailableRooms() < totalRoomsRequested) {
                     isAvailable = false;
                 } else {
                     // Check if this room type's 'max adults' can accommodate EACH requested room's capacity

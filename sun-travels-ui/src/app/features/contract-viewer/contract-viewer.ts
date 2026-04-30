@@ -17,7 +17,7 @@ export class ContractViewer implements OnInit {
   constructor(
     private contractService: ContractService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadContracts();
@@ -34,5 +34,45 @@ export class ContractViewer implements OnInit {
         this.errorMessage = 'Could not load contracts from the server.';
       }
     });
+  }
+
+  // NEW: Method to handle the booking action from the UI
+  logBooking(roomId: number, quantityInput: string): void {
+    const quantity = parseInt(quantityInput, 10);
+
+    if (quantity > 0) {
+      this.contractService.bookRoom(roomId, quantity).subscribe({
+        next: () => {
+          alert('Booking logged successfully! Inventory updated.');
+          this.loadContracts(); // Reload to get fresh availableRooms count
+        },
+        error: (err) => {
+          console.error('Booking failed', err);
+          // Show the specific error message from the Spring Boot backend if available
+          alert(err.error || 'Failed to log booking. Check inventory limits.');
+        }
+      });
+    } else {
+      alert('Please enter a valid quantity greater than 0.');
+    }
+  }
+
+  releaseBooking(roomId: number, quantityInput: string): void {
+    const quantity = parseInt(quantityInput, 10);
+
+    if (quantity > 0) {
+      this.contractService.releaseRoom(roomId, quantity).subscribe({
+        next: () => {
+          alert('Rooms released successfully! Inventory added back.');
+          this.loadContracts(); // Reload to get fresh availableRooms count
+        },
+        error: (err) => {
+          console.error('Release failed', err);
+          alert(err.error || 'Failed to release rooms. Check contract limits.');
+        }
+      });
+    } else {
+      alert('Please enter a valid quantity greater than 0.');
+    }
   }
 }

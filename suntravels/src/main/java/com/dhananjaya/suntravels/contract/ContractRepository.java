@@ -14,7 +14,7 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     /**
      * Finds all contracts where the requested stay (check-in to check-out)
      * falls entirely within the contract's validity period.
-     * * We use JOIN FETCH to load the associated Hotel and RoomTypes in a single query,
+     * We use JOIN FETCH to load the associated Hotel and RoomTypes in a single query,
      * which prevents the N+1 performance problem during search calculations.
      */
     @Query("SELECT DISTINCT c FROM Contract c " +

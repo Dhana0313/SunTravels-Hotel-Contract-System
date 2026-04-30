@@ -34,4 +34,37 @@ public class ContractController {
         List<Contract> contracts = contractService.getAllContracts();
         return ResponseEntity.ok(contracts);
     }
+
+    /**
+     * PATCH endpoint to decrease the available inventory when a room is booked.
+     * Uses PATCH because we are modifying a specific field on an existing resource, not replacing it.
+     */
+    @PatchMapping("/rooms/{roomId}/book")
+    public ResponseEntity<?> decreaseInventory(
+            @PathVariable Long roomId,
+            @RequestParam Integer quantity) {
+        try {
+            RoomType updatedRoom = contractService.logBooking(roomId, quantity);
+            return ResponseEntity.ok(updatedRoom);
+        } catch (IllegalArgumentException e) {
+            // Catches the error if they try to book more rooms than are available
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    /**
+     * PATCH endpoint to increase the available inventory when rooms become free.
+     */
+    @PatchMapping("/rooms/{roomId}/release")
+    public ResponseEntity<?> releaseInventory(
+            @PathVariable Long roomId,
+            @RequestParam Integer quantity) {
+        try {
+            RoomType updatedRoom = contractService.releaseBooking(roomId, quantity);
+            return ResponseEntity.ok(updatedRoom);
+        } catch (IllegalArgumentException e) {
+            // Catches the error if they try to exceed the original contract limit
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

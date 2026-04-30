@@ -34,6 +34,9 @@ public class RoomType {
     @Column(name = "no_of_rooms", nullable = false)
     private Integer noOfRooms;
 
+    @Column(name = "available_rooms", nullable = false)
+    private Integer availableRooms;
+
     @Column(name = "max_adults", nullable = false)
     private Integer maxAdults;
 }
