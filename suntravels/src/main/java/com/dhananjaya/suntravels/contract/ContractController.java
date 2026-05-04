@@ -2,6 +2,7 @@ package com.dhananjaya.suntravels.contract;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,11 @@ public class ContractController {
      * GET endpoint to view all loaded contracts.
      */
     @GetMapping
-    public ResponseEntity<List<Contract>> getAllContracts() {
-        List<Contract> contracts = contractService.getAllContracts();
+    public ResponseEntity<Page<Contract>> getAllContracts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<Contract> contracts = contractService.getAllContracts(page, size);
         return ResponseEntity.ok(contracts);
     }
 

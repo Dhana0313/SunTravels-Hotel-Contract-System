@@ -4,6 +4,10 @@ import com.dhananjaya.suntravels.common.exception.ResourceNotFoundException;
 import com.dhananjaya.suntravels.hotel.Hotel;
 import com.dhananjaya.suntravels.hotel.HotelRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +43,12 @@ public class ContractService {
     }
 
     @Transactional(readOnly = true)
-    public List<Contract> getAllContracts() {
-        return contractRepository.findAll();
+    public Page<Contract> getAllContracts(int page, int size) {
+        // Create a Pageable object, sorting by ID descending so newest contracts are on page 0
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // JpaRepository automatically understands the Pageable parameter!
+        return contractRepository.findAll(pageable);
     }
 
     // 3. THE NEW METHOD TO HANDLE INVENTORY DECREASES

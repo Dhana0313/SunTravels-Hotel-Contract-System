@@ -17,8 +17,8 @@ export class ContractService {
     return this.http.post<any>(this.apiUrl, contractData);
   }
 
-  getAllContracts(): Observable<ContractResponse[]> {
-    return this.http.get<ContractResponse[]>(this.apiUrl);
+  getAllContracts(page: number = 0, size: number = 3): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
   // UPDATED: Corrected the URL to append to the base apiUrl

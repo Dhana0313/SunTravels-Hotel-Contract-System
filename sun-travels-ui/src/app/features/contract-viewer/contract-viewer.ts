@@ -19,6 +19,12 @@ export class ContractViewer implements OnInit {
 
   isLoading = true;
 
+  // NEW: Pagination State Variables
+  currentPage = 0;
+  pageSize = 3;
+  totalPages = 0;
+  totalElements = 0;
+
   constructor(
     private contractService: ContractService,
     private cdr: ChangeDetectorRef
@@ -31,9 +37,16 @@ export class ContractViewer implements OnInit {
   private loadContracts(): void {
     this.isLoading = true;
 
-    this.contractService.getAllContracts().subscribe({
-      next: (data) => {
-        this.contracts = data;
+    this.contractService.getAllContracts(this.currentPage, this.pageSize).subscribe({
+      next: (data: any) => {
+        // Spring Boot wraps the array inside 'content'
+        this.contracts = data.content;
+
+        // Save the pagination metadata
+        this.totalPages = data.totalPages;
+        this.totalElements = data.totalElements;
+        this.currentPage = data.number; // Spring Boot returns the current page as 'number'
+
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -43,7 +56,6 @@ export class ContractViewer implements OnInit {
         this.isLoading = false;
         this.cdr.detectChanges();
 
-        // NEW: Alert if the database/server is down on page load
         Swal.fire({
           title: 'Connection Error',
           text: 'Could not load contracts from the server. Please check your connection.',
@@ -52,6 +64,21 @@ export class ContractViewer implements OnInit {
         });
       }
     });
+  }
+
+  // NEW: Pagination Navigation Methods
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadContracts();
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadContracts();
+    }
   }
 
   // Method to handle the booking action from the UI

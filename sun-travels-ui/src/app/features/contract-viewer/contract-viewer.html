@@ -5,7 +5,8 @@
     <p class="page-subtitle">Overview</p>
     <h1 class="page-title">Contracts</h1>
   </div>
-  <span class="contract-count">{{ contracts.length }} Contracts</span>
+  <!-- CHANGED: Use totalElements instead of contracts.length -->
+  <span class="contract-count">{{ totalElements }} Contracts</span>
 </div>
 
 <div *ngIf="errorMessage" class="alert-danger-custom">{{ errorMessage }}</div>
@@ -80,5 +81,21 @@
   <h6>No contracts found</h6>
   <p>No contracts have been loaded into the database yet.</p>
 </div>
+}
+
+<!-- NEW: Pagination Controls -->
+@if (totalPages > 1) {
+<div class="pagination-controls">
+  <button class="btn-outline-custom" [disabled]="currentPage === 0" (click)="goToPreviousPage()">
+    &larr; Previous
+  </button>
+
+  <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+
+  <button class="btn-outline-custom" [disabled]="currentPage >= totalPages - 1" (click)="goToNextPage()">
+    Next &rarr;
+  </button>
+</div>
+
 }
 }
