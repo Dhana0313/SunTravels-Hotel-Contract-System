@@ -5,19 +5,24 @@
     <p class="page-subtitle">Overview</p>
     <h1 class="page-title">Contracts</h1>
   </div>
-  <!-- CHANGED: Use totalElements instead of contracts.length -->
   <span class="contract-count">{{ totalElements }} Contracts</span>
+</div>
+
+<!-- NEW: Search Bar -->
+<div class="panel mb-4">
+  <div class="panel-body py-3">
+    <div class="d-flex align-items-center gap-3">
+      <span style="font-size: 1.2rem; color: var(--slate-400);">🔍</span>
+      <input type="text" class="form-control border-0 bg-transparent shadow-none w-100 p-0" style="font-size: 1rem;"
+        placeholder="Search contracts by hotel name..." (input)="onSearch($event)">
+    </div>
+  </div>
 </div>
 
 <div *ngIf="errorMessage" class="alert-danger-custom">{{ errorMessage }}</div>
 
-<!-- 1. SHOW SKELETON WHILE LOADING -->
+<!-- SHOW SKELETON WHILE LOADING -->
 @if (isLoading) {
-<div class="skeleton-card">
-  <div class="skeleton-line title"></div>
-  <div class="skeleton-line meta"></div>
-  <div class="skeleton-line box"></div>
-</div>
 <div class="skeleton-card">
   <div class="skeleton-line title"></div>
   <div class="skeleton-line meta"></div>
@@ -26,8 +31,8 @@
 } @else {
 @for (contract of contracts; track contract.id) {
 <div class="contract-card">
+  <!-- Rest of your existing contract card template remains EXACTLY the same -->
   <div class="contract-card-header">
-
     <div class="hotel-name">
       <div class="hotel-icon">🏨</div>
       {{ contract.hotel.hotelName }}
@@ -39,10 +44,9 @@
       <span class="meta-chip chip-markup">{{ contract.markupPercentage }}% Markup</span>
       <span *ngIf="isExpired(contract.validTo)" class="meta-chip chip-expired">Expired</span>
     </div>
-
   </div>
-  <div class="contract-body">
 
+  <div class="contract-body">
     @for (room of contract.roomTypes; track room.id) {
     <div class="room-item">
       <div class="room-info">
@@ -72,30 +76,26 @@
     } @empty {
     <p class="no-rooms">No rooms attached to this contract.</p>
     }
-
   </div>
 </div>
 } @empty {
 <div class="empty-state">
   <div class="empty-icon">📄</div>
   <h6>No contracts found</h6>
-  <p>No contracts have been loaded into the database yet.</p>
+  <p>No contracts match your search criteria.</p>
 </div>
 }
 
-<!-- NEW: Pagination Controls -->
+<!-- Pagination Controls -->
 @if (totalPages > 1) {
 <div class="pagination-controls">
   <button class="btn-outline-custom" [disabled]="currentPage === 0" (click)="goToPreviousPage()">
     &larr; Previous
   </button>
-
   <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
-
   <button class="btn-outline-custom" [disabled]="currentPage >= totalPages - 1" (click)="goToNextPage()">
     Next &rarr;
   </button>
 </div>
-
 }
 }

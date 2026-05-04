@@ -33,9 +33,10 @@ public class ContractController {
     @GetMapping
     public ResponseEntity<Page<Contract>> getAllContracts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchQuery) {
 
-        Page<Contract> contracts = contractService.getAllContracts(page, size);
+        Page<Contract> contracts = contractService.getAllContracts(page, size, searchQuery);
         return ResponseEntity.ok(contracts);
     }
 

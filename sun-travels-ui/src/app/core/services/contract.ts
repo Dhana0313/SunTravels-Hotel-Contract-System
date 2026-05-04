@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient , HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ContractRequest, ContractResponse } from '../models/contract';
 
@@ -17,8 +17,16 @@ export class ContractService {
     return this.http.post<any>(this.apiUrl, contractData);
   }
 
-  getAllContracts(page: number = 0, size: number = 3): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}?page=${page}&size=${size}`);
+  getAllContracts(page: number = 0, size: number = 3, searchQuery: string = ''): Observable<any> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+
+    return this.http.get<any>(this.apiUrl, { params });
   }
 
   // UPDATED: Corrected the URL to append to the base apiUrl

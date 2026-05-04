@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ContractService } from '../../core/services/contract';
 import { ContractResponse } from '../../core/models/contract';
-
-// 1. IMPORT SWEETALERT
 import Swal from 'sweetalert2';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-contract-viewer',
@@ -13,17 +13,20 @@ import Swal from 'sweetalert2';
   templateUrl: './contract-viewer.html',
   styleUrls: ['./contract-viewer.scss']
 })
-export class ContractViewer implements OnInit {
+export class ContractViewer implements OnInit, OnDestroy {
   contracts: ContractResponse[] = [];
   errorMessage = '';
-
   isLoading = true;
 
-  // NEW: Pagination State Variables
   currentPage = 0;
   pageSize = 3;
   totalPages = 0;
   totalElements = 0;
+
+  // NEW: Search state variables
+  currentSearchQuery = '';
+  private searchSubject = new Subject<string>();
+  private searchSubscription!: Subscription;
 
   constructor(
     private contractService: ContractService,
@@ -31,22 +34,43 @@ export class ContractViewer implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.setupSearchListener();
     this.loadContracts();
   }
 
+  ngOnDestroy(): void {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+  }
+
+  // NEW: RxJS pipeline to debounce search input
+  private setupSearchListener(): void {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe((query) => {
+      this.currentSearchQuery = query;
+      this.currentPage = 0; // Reset to page 0 on a new search
+      this.loadContracts();
+    });
+  }
+
+  // NEW: Called directly from HTML input
+  onSearch(event: any): void {
+    this.searchSubject.next(event.target.value);
+  }
+
+  // CHANGED: Pass currentSearchQuery to the service
   private loadContracts(): void {
     this.isLoading = true;
 
-    this.contractService.getAllContracts(this.currentPage, this.pageSize).subscribe({
+    this.contractService.getAllContracts(this.currentPage, this.pageSize, this.currentSearchQuery).subscribe({
       next: (data: any) => {
-        // Spring Boot wraps the array inside 'content'
         this.contracts = data.content;
-
-        // Save the pagination metadata
         this.totalPages = data.totalPages;
         this.totalElements = data.totalElements;
-        this.currentPage = data.number; // Spring Boot returns the current page as 'number'
-
+        this.currentPage = data.number;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
@@ -66,7 +90,6 @@ export class ContractViewer implements OnInit {
     });
   }
 
-  // NEW: Pagination Navigation Methods
   goToNextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
@@ -81,14 +104,11 @@ export class ContractViewer implements OnInit {
     }
   }
 
-  // Method to handle the booking action from the UI
   logBooking(roomId: number, quantityInput: string): void {
     const quantity = parseInt(quantityInput, 10);
-
     if (quantity > 0) {
       this.contractService.bookRoom(roomId, quantity).subscribe({
         next: () => {
-          // REPLACED: Success Toast
           Swal.fire({
             title: 'Booked!',
             text: 'Booking logged successfully! Inventory updated.',
@@ -96,11 +116,9 @@ export class ContractViewer implements OnInit {
             timer: 2000,
             showConfirmButton: false
           });
-          this.loadContracts(); // Reload to get fresh availableRooms count
+          this.loadContracts();
         },
         error: (err) => {
-          console.error('Booking failed', err);
-          // REPLACED: Error Alert
           Swal.fire({
             title: 'Booking Failed',
             text: err.error || 'Failed to log booking. Check inventory limits.',
@@ -110,18 +128,15 @@ export class ContractViewer implements OnInit {
         }
       });
     } else {
-      // REPLACED: Validation Warning
       Swal.fire('Invalid Input', 'Please enter a valid quantity greater than 0.', 'warning');
     }
   }
 
   releaseBooking(roomId: number, quantityInput: string): void {
     const quantity = parseInt(quantityInput, 10);
-
     if (quantity > 0) {
       this.contractService.releaseRoom(roomId, quantity).subscribe({
         next: () => {
-          // REPLACED: Success Toast
           Swal.fire({
             title: 'Released!',
             text: 'Rooms released successfully! Inventory added back.',
@@ -129,11 +144,9 @@ export class ContractViewer implements OnInit {
             timer: 2000,
             showConfirmButton: false
           });
-          this.loadContracts(); // Reload to get fresh availableRooms count
+          this.loadContracts();
         },
         error: (err) => {
-          console.error('Release failed', err);
-          // REPLACED: Error Alert
           Swal.fire({
             title: 'Release Failed',
             text: err.error || 'Failed to release rooms. Check contract limits.',
@@ -143,17 +156,14 @@ export class ContractViewer implements OnInit {
         }
       });
     } else {
-      // REPLACED: Validation Warning
       Swal.fire('Invalid Input', 'Please enter a valid quantity greater than 0.', 'warning');
     }
   }
 
   isExpired(validToDate: string): boolean {
     const today = new Date();
-    // Reset time to midnight so it only compares the date
     today.setHours(0, 0, 0, 0);
     const expirationDate = new Date(validToDate);
-
     return expirationDate < today;
   }
 }

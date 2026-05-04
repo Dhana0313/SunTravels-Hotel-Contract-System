@@ -43,11 +43,13 @@ public class ContractService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Contract> getAllContracts(int page, int size) {
-        // Create a Pageable object, sorting by ID descending so newest contracts are on page 0
+    public Page<Contract> getAllContracts(int page, int size, String searchQuery) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        // JpaRepository automatically understands the Pageable parameter!
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            return contractRepository.findByHotelHotelNameContainingIgnoreCase(searchQuery.trim(), pageable);
+        }
+
         return contractRepository.findAll(pageable);
     }
 
