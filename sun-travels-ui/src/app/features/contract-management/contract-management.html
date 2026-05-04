@@ -15,16 +15,33 @@
   <div class="panel-body">
 
     <div *ngIf="successMessage" class="alert-success-custom">{{ successMessage }}</div>
-    <div *ngIf="errorMessage"   class="alert-danger-custom">{{ errorMessage }}</div>
+    <div *ngIf="errorMessage" class="alert-danger-custom">{{ errorMessage }}</div>
 
     <form [formGroup]="contractForm" (ngSubmit)="onSubmit()">
 
-      <div class="form-row">
+      <!-- CHANGED: Custom Autocomplete Hotel Search -->
+      <div class="form-row autocomplete-container">
         <label class="form-label-custom">Select Hotel</label>
-        <select class="form-select" formControlName="hotelId">
-          <option value="" disabled>Choose a hotel...</option>
-          <option *ngFor="let hotel of hotels" [value]="hotel.id">{{ hotel.hotelName }}</option>
-        </select>
+
+        <!-- The visible search box -->
+        <input type="text" class="form-control" placeholder="Type to search for a hotel..." [value]="selectedHotelName"
+          (input)="onSearchType($event)">
+
+        <!-- The floating dropdown menu -->
+        @if (isDropdownOpen && filteredHotels.length > 0) {
+        <ul class="custom-dropdown-list"> <!-- CHANGED NAME -->
+          @for (hotel of filteredHotels; track hotel.id) {
+          <li (mousedown)="selectHotel(hotel)">
+            <div class="hotel-name-dropdown">🏨 {{ hotel.hotelName }}</div>
+
+          </li>
+          }
+        </ul>
+        } @else if (isDropdownOpen && filteredHotels.length === 0) {
+        <ul class="custom-dropdown-list"> <!-- CHANGED NAME -->
+          <li class="no-results">No hotels found matching that name...</li>
+        </ul>
+        }
       </div>
 
       <div class="row g-3 form-row">
@@ -51,32 +68,32 @@
 
       <div formArrayName="roomTypes">
         @for (room of roomTypes.controls; track $index; let i = $index) {
-          <div [formGroupName]="i" class="room-card">
-            <div class="room-card-header">
-              <span class="room-number">Room #{{ i + 1 }}</span>
-              @if (roomTypes.length > 1) {
-                <button type="button" class="btn-remove" (click)="removeRoomType(i)">Remove</button>
-              }
+        <div [formGroupName]="i" class="room-card">
+          <div class="room-card-header">
+            <span class="room-number">Room #{{ i + 1 }}</span>
+            @if (roomTypes.length > 1) {
+            <button type="button" class="btn-remove" (click)="removeRoomType(i)">Remove</button>
+            }
+          </div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label-custom">Type Name</label>
+              <input type="text" class="form-control" formControlName="typeName" placeholder="e.g. Standard, Deluxe">
             </div>
-            <div class="row g-3">
-              <div class="col-12">
-                <label class="form-label-custom">Type Name</label>
-                <input type="text" class="form-control" formControlName="typeName" placeholder="e.g. Standard, Deluxe">
-              </div>
-              <div class="col-6">
-                <label class="form-label-custom">Base Price ($)</label>
-                <input type="number" class="form-control" formControlName="price">
-              </div>
-              <div class="col-6">
-                <label class="form-label-custom">No. of Rooms</label>
-                <input type="number" class="form-control" formControlName="noOfRooms">
-              </div>
-              <div class="col-12">
-                <label class="form-label-custom">Max Adults per Room</label>
-                <input type="number" class="form-control" formControlName="maxAdults">
-              </div>
+            <div class="col-6">
+              <label class="form-label-custom">Base Price ($)</label>
+              <input type="number" class="form-control" formControlName="price">
+            </div>
+            <div class="col-6">
+              <label class="form-label-custom">No. of Rooms</label>
+              <input type="number" class="form-control" formControlName="noOfRooms">
+            </div>
+            <div class="col-12">
+              <label class="form-label-custom">Max Adults per Room</label>
+              <input type="number" class="form-control" formControlName="maxAdults">
             </div>
           </div>
+        </div>
         }
       </div>
 

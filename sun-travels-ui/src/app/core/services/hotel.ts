@@ -20,4 +20,9 @@ export class HotelService {
   createHotel(hotel: Hotel): Observable<Hotel> {
     return this.http.post<Hotel>(this.apiUrl, hotel);
   }
+
+  searchHotels(query: string): Observable<Hotel[]> {
+    // Make sure this matches whatever endpoint you create in Spring Boot!
+    return this.http.get<Hotel[]>(`${this.apiUrl}/search?name=${query}`);
+  }
 }

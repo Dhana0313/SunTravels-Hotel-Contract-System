@@ -33,4 +33,10 @@ public class HotelController {
         List<Hotel> hotels = hotelService.getAllHotels();
         return ResponseEntity.ok(hotels);
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Hotel>> searchHotels(@RequestParam String name) {
+        List<Hotel> matchedHotels = hotelService.searchHotels(name);
+        return ResponseEntity.ok(matchedHotels);
+    }
 }

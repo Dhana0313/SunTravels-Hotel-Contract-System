@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { HotelService } from '../../core/services/hotel';
 import { ContractService } from '../../core/services/contract';
 import { Hotel } from '../../core/models/hotel';
@@ -21,6 +23,14 @@ export class ContractManagement implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // NEW: Autocomplete State Variables
+  filteredHotels: Hotel[] = [];
+  selectedHotelName = '';
+  isDropdownOpen = false;
+
+  // NEW: The RxJS Subject that acts as our search pipe
+  private searchSubject = new Subject<string>();
+
   constructor(
     private fb: FormBuilder,
     private hotelService: HotelService,
@@ -29,7 +39,7 @@ export class ContractManagement implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
-    this.loadHotels();
+    this.setupSearchListener();
   }
 
   // 1. Initialize the vertical form structure
@@ -44,22 +54,47 @@ export class ContractManagement implements OnInit {
     this.addRoomType(); // Start with one empty room type box by default
   }
 
-  // 2. Load hotels for the dropdown
-  private loadHotels(): void {
-    this.hotelService.getAllHotels().subscribe({
-      next: (data) => this.hotels = data,
-      error: (err) => {
-        console.error('Failed to load hotels', err);
-
-        // 2. ADD SWEETALERT FOR API ERROR (Dropdown failure)
-        Swal.fire({
-          title: 'Connection Error',
-          text: 'Failed to load the list of hotels. Please refresh the page or check your connection.',
-          icon: 'error',
-          confirmButtonColor: '#d33'
-        });
-      }
+  // NEW: The RxJS Magic
+  private setupSearchListener(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),        // Wait 300ms after the user stops typing
+      distinctUntilChanged(),   // Don't search again if the text is exactly the same
+      switchMap((term: string) => this.hotelService.searchHotels(term)) // Cancel old searches and start a new one
+    ).subscribe({
+      next: (data) => {
+        this.filteredHotels = data;
+        this.isDropdownOpen = true; // Show the list once data arrives
+      },
+      error: (err) => console.error('Search failed', err)
     });
+  }
+
+  // CHANGED: Simply push the typed letters into the RxJS pipe
+  onSearchType(event: any): void {
+    const searchTerm = event.target.value.trim();
+    this.selectedHotelName = event.target.value;
+
+    if (searchTerm.length > 0) {
+      // Drop the text into the pipe
+      this.searchSubject.next(searchTerm);
+    } else {
+      // If the box is empty, clear everything and hide the dropdown
+      this.filteredHotels = [];
+      this.isDropdownOpen = false;
+    }
+  }
+
+  selectHotel(hotel: Hotel): void {
+    this.selectedHotelName = hotel.hotelName; // Update visible text
+    this.isDropdownOpen = false;              // Hide dropdown
+
+    // CRITICAL: Update the reactive form secretly in the background!
+    this.contractForm.patchValue({ hotelId: hotel.id });
+  }
+
+  hideDropdown(): void {
+    // Delay hiding slightly so the click event has time to register
+    setTimeout(() => this.isDropdownOpen = false, 200);
   }
 
   // 3. Helper to easily access the roomTypes array in the HTML
@@ -95,6 +130,7 @@ export class ContractManagement implements OnInit {
           this.contractForm.reset();
           this.roomTypes.clear();
           this.addRoomType(); // Reset UI state
+          this.selectedHotelName = '';
 
           // 3. ADD SWEETALERT SUCCESS TOAST
           Swal.fire({

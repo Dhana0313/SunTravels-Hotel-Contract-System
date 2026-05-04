@@ -31,4 +31,15 @@ public class HotelService {
     public List<Hotel> getAllHotels() {
         return hotelRepository.findAll();
     }
+
+    @Transactional(readOnly = true)
+    public List<Hotel> searchHotels(String name) {
+        // Safety check: if the search term is empty, return an empty list immediately
+        if (name == null || name.trim().isEmpty()) {
+            return List.of();
+        }
+
+        // Pass the trimmed name to our custom repository method
+        return hotelRepository.findTop10ByHotelNameContainingIgnoreCase(name.trim());
+    }
 }
