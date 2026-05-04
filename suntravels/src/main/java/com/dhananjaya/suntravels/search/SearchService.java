@@ -4,6 +4,10 @@ import com.dhananjaya.suntravels.contract.Contract;
 import com.dhananjaya.suntravels.contract.ContractRepository;
 import com.dhananjaya.suntravels.contract.RoomType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +24,7 @@ public class SearchService {
     private final ContractRepository contractRepository;
 
     @Transactional(readOnly = true)
-    public List<SearchResultDto> searchAvailableRooms(SearchRequestDto request) {
+    public Page<SearchResultDto> searchAvailableRooms(SearchRequestDto request, int page, int size) {
         // 1. Calculate the actual check-out date
         LocalDate checkOutDate = request.checkInDate().plusDays(request.noOfNights());
 
@@ -85,6 +89,18 @@ public class SearchService {
             }
         }
 
-        return searchResults;
+        // NEW: In-Memory Pagination Logic
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Calculate the starting and ending index for the requested page
+        int start = Math.min((int) pageable.getOffset(), searchResults.size());
+        int end = Math.min((start + pageable.getPageSize()), searchResults.size());
+
+        // Slice the list
+        List<SearchResultDto> paginatedList = searchResults.subList(start, end);
+
+        // Wrap it in Spring's Page object so the frontend gets the totalElements and totalPages metadata
+        return new PageImpl<>(paginatedList, pageable, searchResults.size());
     }
+
 }

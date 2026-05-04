@@ -12,7 +12,7 @@ export class SearchService {
 
   constructor(private http: HttpClient) {}
 
-  searchAvailableRooms(searchData: SearchRequest): Observable<SearchResult[]> {
-    return this.http.post<SearchResult[]>(this.apiUrl, searchData);
+  searchAvailableRooms(searchData: SearchRequest, page: number = 0, size: number = 10): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}?page=${page}&size=${size}`, searchData);
   }
 }

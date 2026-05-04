@@ -23,6 +23,15 @@ export class SearchEngine implements OnInit {
   isSearching = false;
   errorMessage = '';
 
+  // NEW: Pagination State
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
+  totalElements = 0;
+
+  // NEW: Cache the payload so navigating pages doesn't break if the user edits the form
+  private currentSearchPayload!: SearchRequest;
+
   constructor(
     private fb: FormBuilder,
     private searchService: SearchService,
@@ -62,61 +71,80 @@ export class SearchEngine implements OnInit {
 
   onSubmit(): void {
     if (this.searchForm.valid) {
-      this.isSearching = true;
-      this.hasSearched = false;
-      this.errorMessage = '';
-
       const formValue = this.searchForm.value;
       const finalRoomRequests: RoomRequest[] = [];
 
-      // Loop through the UI rows and multiply them based on the quantity
       for (const row of formValue.roomRequests) {
         for (let i = 0; i < row.roomQuantity; i++) {
           finalRoomRequests.push({ noOfAdults: row.noOfAdults });
         }
       }
 
-      // Build the final strict payload for Spring Boot
-      const searchPayload: SearchRequest = {
+      this.currentSearchPayload = {
         checkInDate: formValue.checkInDate,
         noOfNights: formValue.noOfNights,
         roomRequests: finalRoomRequests
       };
-      // ----------------------------------------
 
-      // Send the transformed payload instead of the raw form value
-      this.searchService.searchAvailableRooms(searchPayload).subscribe({
-        next: (data) => {
-          this.results = data;
-          this.hasSearched = true;
-          this.isSearching = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          console.error('Search failed', err);
-          this.errorMessage = 'Failed to execute search. Please verify your backend connection.';
-          this.isSearching = false;
-          this.cdr.detectChanges();
+      this.currentPage = 0; // Always start on page 1 for a new search
+      this.executeSearch(); // Call the actual API method
 
-          // 2. ADD SWEETALERT FOR API ERRORS
-          Swal.fire({
-            title: 'Search Failed',
-            text: 'Could not connect to the server to find available rooms.',
-            icon: 'error',
-            confirmButtonColor: '#d33'
-          });
-        }
-      });
     } else {
       this.searchForm.markAllAsTouched();
-
-      // 3. ADD SWEETALERT FOR FORM VALIDATION
       Swal.fire({
         title: 'Incomplete Form',
         text: 'Please fill in all required search fields correctly before searching.',
         icon: 'warning',
         confirmButtonColor: '#3085d6'
       });
+    }
+  }
+
+  // NEW: The actual API call method used by onSubmit and the Pagination buttons
+  private executeSearch(): void {
+    this.isSearching = true;
+    this.hasSearched = false;
+    this.errorMessage = '';
+
+    this.searchService.searchAvailableRooms(this.currentSearchPayload, this.currentPage, this.pageSize).subscribe({
+      next: (data) => {
+        // Extract the paginated data
+        this.results = data.content;
+        this.totalPages = data.totalPages;
+        this.totalElements = data.totalElements;
+        this.currentPage = data.number;
+
+        this.hasSearched = true;
+        this.isSearching = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Search failed', err);
+        this.errorMessage = 'Failed to execute search. Please verify your backend connection.';
+        this.isSearching = false;
+        this.cdr.detectChanges();
+        Swal.fire({
+          title: 'Search Failed',
+          text: 'Could not connect to the server to find available rooms.',
+          icon: 'error',
+          confirmButtonColor: '#d33'
+        });
+      }
+    });
+  }
+
+  // NEW: Pagination Navigation
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.executeSearch();
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.executeSearch();
     }
   }
 }

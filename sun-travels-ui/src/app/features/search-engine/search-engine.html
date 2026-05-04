@@ -82,7 +82,7 @@
   <div class="panel results-panel w-100">
     <div class="panel-header">
       <h2 class="panel-title">Search Results</h2>
-      <span *ngIf="results.length > 0" class="result-count">{{ results.length }} Found</span>
+      <span *ngIf="hasSearched && totalElements > 0" class="result-count">{{ totalElements }} Found</span>
     </div>
 
     <!-- Not yet searched -->
@@ -133,6 +133,23 @@
           }
         </tbody>
       </table>
+    </div>
+    }
+
+    <!-- NEW: Pagination Controls -->
+    @if (totalPages > 1) {
+    <div class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+      <button class="btn-outline-custom" [disabled]="currentPage === 0" (click)="goToPreviousPage()">
+        &larr; Previous
+      </button>
+
+      <span style="font-size: 0.85rem; color: var(--slate-600); font-weight: 600;">
+        Page {{ currentPage + 1 }} of {{ totalPages }}
+      </span>
+
+      <button class="btn-outline-custom" [disabled]="currentPage >= totalPages - 1" (click)="goToNextPage()">
+        Next &rarr;
+      </button>
     </div>
     }
 

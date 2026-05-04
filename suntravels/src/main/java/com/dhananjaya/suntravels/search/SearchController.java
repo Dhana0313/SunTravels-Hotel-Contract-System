@@ -2,6 +2,7 @@ package com.dhananjaya.suntravels.search;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,12 @@ public class SearchController {
      * than as complex URL query parameters.
      */
     @PostMapping
-    public ResponseEntity<List<SearchResultDto>> searchRooms(@Valid @RequestBody SearchRequestDto requestDto) {
-        List<SearchResultDto> results = searchService.searchAvailableRooms(requestDto);
+    public ResponseEntity<Page<SearchResultDto>> searchRooms(
+            @Valid @RequestBody SearchRequestDto requestDto,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SearchResultDto> results = searchService.searchAvailableRooms(requestDto, page, size);
         return ResponseEntity.ok(results);
     }
 }
