@@ -3,6 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Hotel } from '../models/hotel';
 
+// NEW: Interface to match Spring Boot's Page object
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,8 +22,8 @@ export class HotelService {
 
   constructor(private http: HttpClient) {}
 
-  getAllHotels(): Observable<Hotel[]> {
-    return this.http.get<Hotel[]>(this.apiUrl);
+  getAllHotels(page: number = 0, size: number = 10): Observable<PageResponse<Hotel>> {
+    return this.http.get<PageResponse<Hotel>>(`${this.apiUrl}?page=${page}&size=${size}`);
   }
 
   createHotel(hotel: Hotel): Observable<Hotel> {

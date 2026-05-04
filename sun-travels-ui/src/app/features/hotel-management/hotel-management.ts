@@ -20,6 +20,12 @@ export class HotelManagementComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  // NEW: Pagination State
+  currentPage = 0;
+  pageSize = 10;
+  totalElements = 0;
+  totalPages = 0;
+
   constructor(
     private fb: FormBuilder,
     private hotelService: HotelService,
@@ -34,15 +40,15 @@ export class HotelManagementComponent implements OnInit {
   }
 
   loadHotels(): void {
-    this.hotelService.getAllHotels().subscribe({
+    this.hotelService.getAllHotels(this.currentPage, this.pageSize).subscribe({
       next: (data) => {
-        this.hotels = data;
+        this.hotels = data.content; // Extract the array from Spring's Page object
+        this.totalElements = data.totalElements;
+        this.totalPages = data.totalPages;
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Failed to load hotels', err);
-
-        // 2. ADD SWEETALERT FOR API ERROR (Table load failure)
         Swal.fire({
           title: 'Connection Error',
           text: 'Failed to load the list of hotels from the server.',
@@ -53,6 +59,21 @@ export class HotelManagementComponent implements OnInit {
     });
   }
 
+  // NEW: Pagination Controls
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadHotels();
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadHotels();
+    }
+  }
+
   onSubmit(): void {
     if (this.hotelForm.valid) {
       this.hotelService.createHotel(this.hotelForm.value).subscribe({
@@ -60,7 +81,10 @@ export class HotelManagementComponent implements OnInit {
           this.successMessage = 'Hotel added successfully!';
           this.errorMessage = '';
           this.hotelForm.reset();
-          this.loadHotels(); // Refresh the list instantly
+
+          // CHANGED: Jump to page 1 so they see the newest hotel instantly
+          this.currentPage = 0; 
+          this.loadHotels();
 
           // 3. ADD SWEETALERT SUCCESS TOAST
           Swal.fire({

@@ -2,6 +2,7 @@ package com.dhananjaya.suntravels.hotel;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,12 @@ public class HotelController {
      * GET endpoint to fetch the list of available hotels.
      */
     @GetMapping
-    public ResponseEntity<List<Hotel>> getAllHotels() {
-        List<Hotel> hotels = hotelService.getAllHotels();
-        return ResponseEntity.ok(hotels);
+    public ResponseEntity<Page<Hotel>> getAllHotels(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<Hotel> hotelPage = hotelService.getAllHotels(page, size);
+        return ResponseEntity.ok(hotelPage);
     }
 
     @GetMapping("/search")

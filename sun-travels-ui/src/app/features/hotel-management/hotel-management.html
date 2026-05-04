@@ -41,7 +41,8 @@
 <div class="panel">
   <div class="panel-header">
     <h2 class="panel-title">Registered Hotels</h2>
-    <span class="count-badge">{{ hotels.length }}</span>
+    <!-- CHANGED: Use totalElements -->
+    <span class="count-badge">{{ totalElements }} Total</span>
   </div>
 
   <ul class="hotel-list">
@@ -62,4 +63,21 @@
       </li>
     }
   </ul>
+
+  <!-- NEW: Pagination Controls -->
+  @if (totalPages > 1) {
+    <div class="d-flex justify-content-center align-items-center gap-3 p-3 border-top">
+      <button class="btn-outline-custom" [disabled]="currentPage === 0" (click)="goToPreviousPage()">
+        &larr; Previous
+      </button>
+
+      <span style="font-size: 0.85rem; color: var(--slate-600); font-weight: 500;">
+        Page {{ currentPage + 1 }} of {{ totalPages }}
+      </span>
+
+      <button class="btn-outline-custom" [disabled]="currentPage >= totalPages - 1" (click)="goToNextPage()">
+        Next &rarr;
+      </button>
+    </div>
+  }
 </div>
