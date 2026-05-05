@@ -1,5 +1,6 @@
 package com.dhananjaya.suntravels.contract;
 
+import com.dhananjaya.suntravels.search.SearchResultProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,21 +14,41 @@ import java.util.List;
 @Repository
 public interface ContractRepository extends JpaRepository<Contract, Long> {
 
-    /**
-     * Finds all contracts where the requested stay (check-in to check-out)
-     * falls entirely within the contract's validity period.
-     * We use JOIN FETCH to load the associated Hotel and RoomTypes in a single query,
-     * which prevents the N+1 performance problem during search calculations.
-     */
-    @Query("SELECT DISTINCT c FROM Contract c " +
-            "JOIN FETCH c.hotel " +
-            "JOIN FETCH c.roomTypes " +
-            "WHERE c.validFrom <= :checkInDate " +
-            "AND c.validTo >= :checkOutDate")
-    List<Contract> findValidContractsForStay(
-            @Param("checkInDate") LocalDate checkInDate,
-            @Param("checkOutDate") LocalDate checkOutDate
-    );
 
     Page<Contract> findByHotelHotelNameContainingIgnoreCase(String hotelName, Pageable pageable);
+
+    @Query(nativeQuery = true,
+            value = """
+                SELECT 
+                    h.hotel_name AS hotelName, 
+                    rt.type_name AS roomType, 
+                    (rt.price * (1 + (c.markup_percentage / 100.0)) * :nights * :totalAdults) AS price,
+                    'Available' AS availabilityStatus
+                FROM room_types rt
+                JOIN contracts c ON rt.contract_id = c.contract_id
+                JOIN hotels h ON c.hotel_id = h.hotel_id
+                WHERE c.valid_from <= :checkInDate 
+                  AND c.valid_to >= :checkOutDate
+                  AND rt.available_rooms >= :totalRoomsRequested
+                  AND rt.max_adults >= :maxAdultsPerRoom
+            """,
+            countQuery = """
+                SELECT count(rt.room_type_id) 
+                FROM room_types rt
+                JOIN contracts c ON rt.contract_id = c.contract_id
+                WHERE c.valid_from <= :checkInDate 
+                  AND c.valid_to >= :checkOutDate
+                  AND rt.available_rooms >= :totalRoomsRequested
+                  AND rt.max_adults >= :maxAdultsPerRoom
+            """
+    )
+    Page<SearchResultProjection> findAvailableRoomsNative(
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate,
+            @Param("nights") int nights,
+            @Param("totalAdults") int totalAdults,
+            @Param("totalRoomsRequested") int totalRoomsRequested,
+            @Param("maxAdultsPerRoom") int maxAdultsPerRoom,
+            Pageable pageable
+    );
 }
