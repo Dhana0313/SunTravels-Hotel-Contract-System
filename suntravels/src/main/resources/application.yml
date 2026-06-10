@@ -22,6 +22,22 @@ spring:
         options:
           model: llama-3.3-70b-versatile
 
+    # Local Stdio MCP Subprocess Configuration
+        # Local Stdio MCP Subprocess Configuration
+        mcp:
+          client:
+            enabled: true
+            type: SYNC
+            stdio:
+              connections:
+                hotel-db-tools:
+                  # 1. Point exactly to the Python executable inside your Virtual Environment
+                  command: "C:/Users/dhananjayaj/Downloads/suntravels/suntravels-mcp/venv/Scripts/python.exe"
+                  args:
+                    # 2. Point exactly to your server.py file
+                    - "C:/Users/dhananjayaj/Downloads/suntravels/suntravels-mcp/server.py"
+                  env:
+                    DB_URL: ${NEON_DB_URL}
 
 server:
   port: 8080

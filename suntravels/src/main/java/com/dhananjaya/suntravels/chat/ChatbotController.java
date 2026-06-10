@@ -1,8 +1,9 @@
 package com.dhananjaya.suntravels.chat;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
-import com.dhananjaya.suntravels.search.SearchService; // Make sure this is imported!
 
 @RestController
 @RequestMapping("/api/chat")
@@ -11,14 +12,14 @@ public class ChatbotController {
 
     private final ChatClient chatClient;
 
-    // Inject SearchService in the constructor
-    public ChatbotController(ChatClient.Builder chatClientBuilder, SearchService searchService) {
+    // 1. We removed SearchService from the parameters here
+    public ChatbotController(
+            ChatClient.Builder chatClientBuilder,
+            @Value("classpath:/prompts/system-rules.st") Resource systemPromptResource) {
+
         this.chatClient = chatClientBuilder
-                .defaultSystem("You are a helpful travel assistant for Sun Travels. " +
-                        "Use the searchHotelContracts tool to check real-time availability. " +
-                        "Always be polite, summarize the hotel options clearly, and mention the prices.")
-                // NEW API: Pass the actual service object!
-                .defaultTools(searchService)
+                .defaultSystem(systemPromptResource)
+                // 2. We completely removed .defaultTools(searchService) here
                 .build();
     }
 
@@ -30,9 +31,7 @@ public class ChatbotController {
                     .call()
                     .content();
         } catch (Exception e) {
-            // 1. Forces the full red error log into your IntelliJ console
             e.printStackTrace();
-            // 2. Sends the exact cause directly to your chat widget screen
             return "AI Connection Error: " + e.getMessage();
         }
     }

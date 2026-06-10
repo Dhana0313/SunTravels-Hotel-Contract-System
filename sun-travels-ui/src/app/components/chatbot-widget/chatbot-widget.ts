@@ -56,4 +56,29 @@ export class ChatbotWidgetComponent {
         }
       });
   }
+
+  // Converts simple markdown markers into styled layout blocks
+  formatMessageText(rawText: string): string {
+    if (!rawText) return '';
+
+    // 1. Clean escape to prevent script injections
+    let html = rawText
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 2. Convert '### Title' into clean stylized headings
+    html = html.replace(/^### (.*$)/gim, '<div class="fw-bold text-dark mt-2 mb-1 border-bottom pb-1">$1</div>');
+
+    // 3. Convert '**text**' into bold elements
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-dark">$1</strong>');
+
+    // 4. Convert bullet points into clean line items
+    html = html.replace(/• (.*$)/gim, '<div class="ms-2 mb-1 text-secondary">▪ $1</div>');
+
+    // 5. Convert basic double line breaks into clear paragraphs
+    html = html.replace(/\n/g, '<br>');
+
+    return html;
+  }
 }
