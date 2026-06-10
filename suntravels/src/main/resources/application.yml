@@ -16,10 +16,11 @@ spring:
         format_sql: true
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      base-url: https://api.groq.com/openai/v1
+      api-key: ${GROQ_API_KEY}
       chat:
         options:
-          model: gpt-4o-mini
+          model: llama-3.3-70b-versatile
 
 
 server:

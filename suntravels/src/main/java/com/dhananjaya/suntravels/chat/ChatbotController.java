@@ -24,9 +24,16 @@ public class ChatbotController {
 
     @PostMapping(value = "/ask", produces = "text/plain")
     public String askQuestion(@RequestBody String userMessage) {
-        return chatClient.prompt()
-                .user(userMessage)
-                .call()
-                .content();
+        try {
+            return chatClient.prompt()
+                    .user(userMessage)
+                    .call()
+                    .content();
+        } catch (Exception e) {
+            // 1. Forces the full red error log into your IntelliJ console
+            e.printStackTrace();
+            // 2. Sends the exact cause directly to your chat widget screen
+            return "AI Connection Error: " + e.getMessage();
+        }
     }
 }
