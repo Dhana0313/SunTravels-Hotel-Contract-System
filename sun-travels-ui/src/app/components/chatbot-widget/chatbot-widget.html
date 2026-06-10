@@ -1,0 +1,41 @@
+<button class="chat-fab btn btn-primary shadow" (click)="toggleChat()">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+    <path d="M16 8c0 3.866-3.582 7-8 7a9 9 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7M5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0m4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0m3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+  </svg>
+</button>
+
+<div class="chat-panel shadow-lg" [class.panel-open]="isOpen()">
+  
+  <div class="chat-header bg-primary text-white p-3 d-flex justify-content-between align-items-center">
+    <h5 class="m-0 flex-grow-1">Contract Assistant</h5>
+    <button type="button" class="btn-close btn-close-white" (click)="toggleChat()"></button>
+  </div>
+
+  <div class="chat-body p-3 overflow-auto flex-grow-1 bg-light">
+    @for (msg of messages(); track $index) {
+      <div class="mb-3 d-flex" [class.justify-content-end]="msg.sender === 'user'">
+        <div class="p-2 rounded shadow-sm"
+             [class.bg-primary]="msg.sender === 'user'"
+             [class.text-white]="msg.sender === 'user'"
+             [class.bg-white]="msg.sender === 'ai'"
+             style="max-width: 85%;">
+          {{ msg.text }}
+        </div>
+      </div>
+    }
+    
+    @if (isLoading()) {
+      <div class="text-muted small ms-2 mt-2">The assistant is searching the database...</div>
+    }
+  </div>
+
+  <div class="chat-footer p-3 bg-white border-top">
+    <div class="input-group">
+      <input type="text" class="form-control" placeholder="Search for a contract..."
+             [(ngModel)]="userInput" (keyup.enter)="sendMessage()" [disabled]="isLoading()">
+      <button class="btn btn-primary" (click)="sendMessage()" [disabled]="isLoading() || !userInput().trim()">
+        Send
+      </button>
+    </div>
+  </div>
+</div>

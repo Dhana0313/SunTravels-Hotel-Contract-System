@@ -1,0 +1,37 @@
+/* The Circular Button */
+.chat-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1040; /* Sits above standard Bootstrap elements */
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+/* The Sliding Drawer */
+.chat-panel {
+  position: fixed;
+  top: 0;
+  right: -400px; /* Hides it entirely off the right side */
+  width: 100%;
+  max-width: 400px;
+  height: 100vh;
+  background: #fff;
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1050; /* Sits over your top navbar */
+  display: flex;
+  flex-direction: column;
+
+  &.panel-open {
+    right: 0; /* Slides it into view */
+  }
+}
